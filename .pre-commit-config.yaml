@@ -26,6 +26,7 @@ repos:
           - sqlalchemy>=2.0.43
           - redis>=6.4.0
           - types-Flask>=1.1.6
+          - pydantic>=2.12.3
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
