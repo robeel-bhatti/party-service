@@ -31,6 +31,6 @@ jobs:
       - name: Run Ruff formatter
         run: uv run ruff format
       - name: Run unit tests
-        run: uv run pytest --cov=src tests/unit/
+        run: uv run -m pytest --cov=src
       - name: Build package
         run: uv build
