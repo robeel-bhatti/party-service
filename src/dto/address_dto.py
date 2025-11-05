@@ -1,12 +1,15 @@
 from typing import Optional, Self
 
-from custom_types import GeneralStringConstraint, PostalType
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic.alias_generators import to_camel
 
+from src.dto.custom_types import GeneralStringConstraint, PostalType
 from src.enums.state_enum import USState
 
 
 class AddressDTO(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel)
+
     street_one: GeneralStringConstraint
     street_two: Optional[GeneralStringConstraint] = None
     city: GeneralStringConstraint
@@ -19,5 +22,7 @@ class AddressDTO(BaseModel):
         try:
             USState(self.state)
         except ValueError:
-            raise ValueError(f"Invalid US state code: {self.state}")
+            raise ValueError(
+                f"Failed to create Party. An invalid US state code: '{self.state}' was provided."
+            )
         return self
