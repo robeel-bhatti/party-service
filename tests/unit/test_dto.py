@@ -1,9 +1,8 @@
 import pytest
-from unit.conftest import TEST_ADDRESS
 
 from src.dto.address_dto import AddressDTO
 from src.dto.party_dto import PartyDTO
-from tests.unit.conftest import TEST_USER
+from tests.unit.conftest import TEST_ADDRESS, TEST_USER
 
 
 def test_party_and_address_dto_are_created_successfully(post_payload: dict):
