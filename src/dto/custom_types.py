@@ -1,3 +1,5 @@
+"""Custom types to be reused against fields belonging in multiple pydantic models."""
+
 from typing import Annotated
 
 from pydantic import Field
