@@ -63,7 +63,7 @@ paths:
           required: true
           description: Unique identifier for the party
           schema:
-            type: string
+            type: integer
       requestBody:
         required: true
         content:
@@ -168,20 +168,38 @@ components:
       properties:
         firstName:
           type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
           example: "John"
+          description: "First name (letters, spaces, hyphens, periods, and apostrophes only)"
         middleName:
           type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
           example: "A."
+          description: "Middle name or initial (letters, spaces, hyphens, periods, and apostrophes only)"
         lastName:
           type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
           example: "Doe"
+          description: "Last name (letters, spaces, hyphens, periods, and apostrophes only)"
         email:
           type: string
           format: email
+          minLength: 3
+          maxLength: 254
+          pattern: '^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$'
           example: "john.doe@example.com"
+          description: "Valid email address"
         phoneNumber:
           type: string
-          example: "+1-555-123-4567"
+          pattern: '^\d{3}-\d{3}-\d{4}$'
+          example: "555-123-4567"
+          description: "US phone number in format xxx-xxx-xxxx"
         address:
           $ref: '#/components/schemas/AddressRequest'
       required:
@@ -200,15 +218,34 @@ components:
       properties:
         firstName:
           type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
+          description: "First name (letters, spaces, hyphens, periods, and apostrophes only)"
         middleName:
           type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
+          description: "Middle name or initial (letters, spaces, hyphens, periods, and apostrophes only)"
         lastName:
           type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
+          description: "Last name (letters, spaces, hyphens, periods, and apostrophes only)"
         email:
           type: string
           format: email
+          minLength: 3
+          maxLength: 254
+          pattern: '^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$'
+          description: "Valid email address"
         phoneNumber:
           type: string
+          pattern: '^\d{3}-\d{3}-\d{4}$'
+          example: "555-123-4567"
+          description: "US phone number in format xxx-xxx-xxxx"
         address:
           $ref: '#/components/schemas/AddressRequest'
 
@@ -217,22 +254,44 @@ components:
       properties:
         streetOne:
           type: string
+          minLength: 1
+          maxLength: 200
           example: "123 Main St"
+          description: "Primary street address"
         streetTwo:
           type: string
+          minLength: 1
+          maxLength: 200
           example: "Apt 4B"
+          description: "Secondary address line (apartment, suite, etc.)"
         city:
           type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
           example: "Springfield"
+          description: "City name (letters, spaces, hyphens, periods, and apostrophes only)"
         state:
           type: string
+          minLength: 2
+          maxLength: 2
+          pattern: '^[A-Za-z]{2}$'
           example: "IL"
+          description: "US state code (two letters, case insensitive)"
         zip:
           type: string
+          minLength: 3
+          maxLength: 10
+          pattern: '^[a-zA-Z0-9\s\-]+$'
           example: "62704"
+          description: "Postal/ZIP code (alphanumeric, spaces, and hyphens allowed)"
         countryCode:
           type: string
+          minLength: 2
+          maxLength: 2
+          pattern: '^[A-Z]{2}$'
           example: "US"
+          description: "ISO 3166-1 alpha-2 country code (uppercase)"
       required:
         - streetOne
         - city
@@ -261,7 +320,7 @@ components:
           example: "john.doe@example.com"
         phoneNumber:
           type: string
-          example: "+1-555-123-4567"
+          example: "555-123-4567"
         address:
           $ref: '#/components/schemas/AddressResponse'
 
