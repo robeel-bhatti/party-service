@@ -1,13 +1,10 @@
-from src.models.address import Address
-from src.models.party import Party
-from src.repository.abstract_repository import AbstractRepository
+from src.repository.unit_of_work import UnitOfWork
 
 
 class PartyService:
-    def __init__(
-        self,
-        party_repository: AbstractRepository[Party],
-        address_repository: AbstractRepository[Address],
-    ):
-        self.party_repository = party_repository
-        self.address_repository = address_repository
+    def __init__(self, unit_of_work: UnitOfWork):
+        self.uow = unit_of_work
+
+    def add_party(self) -> None:
+        with self.uow:
+            pass
