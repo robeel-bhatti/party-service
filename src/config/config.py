@@ -10,6 +10,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from src.blueprints.health_check_blueprint import hc_blp
 from src.blueprints.party_blueprint import party_blp
 from src.config.container import Container
+from src.config.exception_handlers import register_error_handlers
 
 
 class Config:
@@ -32,6 +33,7 @@ def create_app() -> Flask:
     api.register_blueprint(hc_blp)
     api.register_blueprint(party_blp)
 
+    register_error_handlers(app)
     return app
 
 

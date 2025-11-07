@@ -2,9 +2,9 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from repository.abstract_repository import AbstractRepository
 from src.models.address import Address
 from src.models.party import Party
+from src.repository.abstract_repository import AbstractRepository
 from src.repository.address_repository import AddressRepository
 from src.repository.party_repository import PartyRepository
 from src.service.party_service import PartyService
