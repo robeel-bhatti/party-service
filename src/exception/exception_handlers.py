@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def handle_validation_error(e: ValidationError) -> tuple[Response, int]:
+    logger.error(f"The request failed due to the following validation error: {e}")
     if e.errors():
         validation_errors = []
 
