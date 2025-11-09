@@ -13,6 +13,9 @@ class ErrorDTO:
     type: str = "about:blank"
 
     def to_dict(self: Self, **extensions: Any) -> dict[str, Any]:
+        """Convert an instance to a dictionary.
+        If there are extra fields that need to be in the error response payload they can be passed in via keyword arguments.
+        """
         err_dict = asdict(self)
         err_dict.update(extensions)
         return err_dict
