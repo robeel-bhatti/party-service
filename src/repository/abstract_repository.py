@@ -20,3 +20,7 @@ class AbstractRepository(ABC, Generic[T]):
     @abstractmethod
     def delete(self, id: int) -> None:
         pass
+
+    @abstractmethod
+    def get_by_hash(self, hash: str) -> T | None:
+        pass

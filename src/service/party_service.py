@@ -2,6 +2,7 @@ from typing import Any
 
 from repository.unit_of_work import UnitOfWork
 from src.dto.party_dto import PartyDTO
+from src.mapper.mappers import to_address_model
 from src.models.address import Address
 from src.models.party import Party
 from src.repository.abstract_repository import AbstractRepository
@@ -19,11 +20,15 @@ class PartyService:
         self.address_repository = address_repository
 
     def add_party(self, req: dict[str, Any]) -> None:
-        # validate request payload first
-        party = PartyDTO(**req)
+        party_dto = PartyDTO(**req)
+        address_dto = party_dto.address
+        meta_dto = party_dto.meta
 
-        # if request is valid, start address validation
-        # to do address validation, we need to get the address hash
-        party.address.get_hash()
+        addr_hash = address_dto.get_hash()
+        address = self.address_repository.get_by_hash(addr_hash)
 
-        # then we will query the database for address row with that hash
+        if address is None:
+            address = to_address_model(address_dto)
+            address.hash = addr_hash
+            address.created_by = meta_dto.created_by
+            address.updated_by = meta_dto.created_by
