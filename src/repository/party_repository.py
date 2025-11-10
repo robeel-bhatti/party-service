@@ -19,3 +19,6 @@ class PartyRepository(AbstractRepository[Party]):
 
     def delete(self, id: int) -> None:
         self.session.delete(instance=Party)
+
+    def get_by_hash(self, name: str) -> Party:
+        raise NotImplementedError
