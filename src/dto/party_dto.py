@@ -5,6 +5,7 @@ from pydantic.alias_generators import to_camel
 
 from src.dto.address_dto import AddressDTO
 from src.dto.custom_types import GeneralStringConstraint, PhoneType
+from src.dto.meta_dto import MetaDTO
 
 
 class PartyDTO(BaseModel):
@@ -15,3 +16,4 @@ class PartyDTO(BaseModel):
     email: EmailStr
     phone_number: PhoneType
     address: AddressDTO
+    meta: MetaDTO
