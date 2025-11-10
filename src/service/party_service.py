@@ -1,5 +1,6 @@
 from typing import Any
 
+from repository.unit_of_work import UnitOfWork
 from src.dto.party_dto import PartyDTO
 from src.models.address import Address
 from src.models.party import Party
@@ -9,9 +10,11 @@ from src.repository.abstract_repository import AbstractRepository
 class PartyService:
     def __init__(
         self,
+        unit_of_work: UnitOfWork,
         party_repository: AbstractRepository[Party],
         address_repository: AbstractRepository[Address],
     ):
+        self.unit_of_work = unit_of_work
         self.party_repository = party_repository
         self.address_repository = address_repository
 

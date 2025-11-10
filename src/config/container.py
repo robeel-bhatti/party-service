@@ -32,17 +32,17 @@ class Container:
         return self._address_repository
 
     @property
-    def party_service(self) -> PartyService:
-        if not self._party_service:
-            self._party_service = PartyService(
-                self.party_repository, self.address_repository
-            )
-        return self._party_service
-
-    @property
     def unit_of_work(self) -> UnitOfWork:
         if not self._unit_of_work:
             self._unit_of_work = UnitOfWork(
                 self.db_session, self.party_repository, self.address_repository
             )
         return self._unit_of_work
+
+    @property
+    def party_service(self) -> PartyService:
+        if not self._party_service:
+            self._party_service = PartyService(
+                self.unit_of_work, self.party_repository, self.address_repository
+            )
+        return self._party_service
