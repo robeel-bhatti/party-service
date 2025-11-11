@@ -17,6 +17,7 @@ class AddressDTO(BaseModel):
     state: str = Field(min_length=2, max_length=2)
     postal_code: PostalType
     country: str = Field(min_length=3, max_length=3)
+    id: Optional[int] = None
 
     @model_validator(mode="after")
     def parse_state(self) -> Self:
