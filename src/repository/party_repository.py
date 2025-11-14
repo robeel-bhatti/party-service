@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import select
 
 from src.models.party import Party
 from src.repository.abstract_repository import AbstractRepository
@@ -20,5 +21,5 @@ class PartyRepository(AbstractRepository[Party]):
     def delete(self, id: int) -> None:
         self.session.delete(instance=Party)
 
-    def get_by_hash(self, name: str) -> Party:
-        raise NotImplementedError
+    def get_by_hash(self, hash: str) -> Party | None:
+        return self.session.execute(select(Party).where(Party.hash == hash)).scalar()
