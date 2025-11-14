@@ -2,15 +2,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 
 from src.models.party import Party
-from src.repository.abstract_repository import AbstractRepository
 
 
-class PartyRepository(AbstractRepository[Party]):
+class PartyRepository:
     def __init__(self, session: Session):
         self.session = session
-
-    # def get_all(self, query: str) -> list[Party]:
-    #     pass
 
     def get_by_id(self, id: int) -> Party:
         return self.session.get_one(entity=Party, ident=id)

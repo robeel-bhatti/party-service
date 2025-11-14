@@ -2,15 +2,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 
 from src.models.address import Address
-from src.repository.abstract_repository import AbstractRepository
 
 
-class AddressRepository(AbstractRepository[Address]):
+class AddressRepository:
     def __init__(self, session: Session):
         self.session = session
-
-    # def get_all(self, query: str) -> list[Address]:
-    #     pass
 
     def get_by_id(self, id: int) -> Address:
         return self.session.get_one(entity=Address, ident=id)

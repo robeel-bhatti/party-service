@@ -3,9 +3,9 @@ from types import TracebackType
 
 from sqlalchemy.orm import Session
 
-from src.models.address import Address
-from src.models.party import Party
-from src.repository.abstract_repository import AbstractRepository
+from src.repository.party_history_repository import PartyHistoryRepository
+from src.repository.address_repository import AddressRepository
+from src.repository.party_repository import PartyRepository
 
 uow_logger = logging.getLogger(__name__)
 
@@ -16,12 +16,14 @@ class UnitOfWork:
     def __init__(
         self,
         session: Session,
-        party_repository: AbstractRepository[Party],
-        address_repository: AbstractRepository[Address],
+        party_repository: PartyRepository,
+        address_repository: AddressRepository,
+        party_history_repository: PartyHistoryRepository,
     ):
         self.session = session
         self.party_repository = party_repository
         self.address_repository = address_repository
+        self.party_history_repository = party_history_repository
 
     def __enter__(self) -> None:
         uow_logger.info("Starting Transaction...")
