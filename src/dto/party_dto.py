@@ -1,25 +1,36 @@
-from typing import Optional, Self
+import hashlib
+from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr
 from pydantic.alias_generators import to_camel
 
 from src.dto.address_dto import AddressDTO
 from src.dto.custom_types import GeneralStringConstraint, PhoneType
+from src.dto.meta_dto import MetaDTO
 
 
 class PartyDTO(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel)
     first_name: GeneralStringConstraint
     middle_name: Optional[GeneralStringConstraint] = None
-    last_name: Optional[GeneralStringConstraint] = None
-    email: Optional[EmailStr] = None
-    phone_number: Optional[PhoneType] = None
+    last_name: GeneralStringConstraint
+    email: EmailStr
+    phone_number: PhoneType
     address: AddressDTO
+    meta: MetaDTO
+    id: Optional[int] = None
 
-    @model_validator(mode="after")
-    def check_fields(self) -> Self:
-        if self.email is None and self.phone_number is None:
-            raise ValueError(
-                "Failed to create Party. Either email or phone_number must be provided."
-            )
-        return self
+    def get_hash(self) -> str:
+        """
+        Normalize party components, then get a deterministic hash.
+
+        In reality a hash that uniquely identifies an individual needs something like a SSN
+        so just making do for now.
+        """
+        normalized_string = (
+            f"{self.first_name} "
+            f"|{self.middle_name if self.middle_name else ''}"
+            f"|{self.last_name}"
+            f"|{self.email}"
+        )
+        return hashlib.sha256(normalized_string.encode()).hexdigest()

@@ -37,3 +37,27 @@ def test_throws_error_when_invalid_state_is_provided(post_payload: dict):
     with pytest.raises(ValueError) as err:
         PartyDTO(**post_payload)
     assert "invalid US state code" in str(err.value)
+
+
+def test_fields_are_normalized(post_payload: dict):
+    post_payload["address"]["city"] = "richmond "
+    post_payload["address"]["state"] = "va"
+    post_payload["address"]["postalCode"] = "12345"
+    post_payload["address"]["country"] = "usa"
+    post_payload["address"]["streetOne"] = "123 main street"
+    post_payload["address"]["streetTwo"] = "suite 45 "
+    party = PartyDTO(**post_payload)
+    assert party.address.city == "Richmond"
+    assert party.address.state == "VA"
+    assert party.address.postal_code == "12345"
+    assert party.address.country == "USA"
+    assert party.address.street_one == "123 Main Street"
+    assert party.address.street_two == "Suite 45"
+
+
+def test_address_dto_hash(post_payload: dict):
+    """Ensure hashing method returns deterministic output"""
+    party = PartyDTO(**post_payload)
+    hash_one = party.address.get_hash()
+    hash_two = party.address.get_hash()
+    assert hash_one == hash_two
