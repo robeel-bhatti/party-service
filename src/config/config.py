@@ -12,6 +12,8 @@ from src.blueprints.health_check_blueprint import hc_blp
 from src.blueprints.party_blueprint import party_blp
 from src.config.container import Container
 from src.exception.exception_handlers import handle_validation_error
+from src.exception.custom_exceptions import EntityAlreadyExistsError
+from src.exception.exception_handlers import handle_entity_already_exists_error
 
 
 class Config:
@@ -79,3 +81,6 @@ def init_cache(app: Flask) -> None:
 
 def init_exception_handlers(app: Flask) -> None:
     app.register_error_handler(ValidationError, handle_validation_error)
+    app.register_error_handler(
+        EntityAlreadyExistsError, handle_entity_already_exists_error
+    )

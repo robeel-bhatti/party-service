@@ -4,7 +4,8 @@ from http import HTTPStatus
 from flask import Response, jsonify, request
 from pydantic import ValidationError
 
-from src.exception.error_dto import ErrorDTO
+from src.exception.custom_exceptions import EntityAlreadyExistsError
+from src.exception.custom_exceptions import ErrorDTO
 
 logger = logging.getLogger(__name__)
 
@@ -35,3 +36,15 @@ def handle_validation_error(e: ValidationError) -> tuple[Response, int]:
         f"Could not process ValidationError because of invalid handler input: {e.errors}"
     )
     return jsonify({"message": "An unexpected error occurred processing request"}), 500
+
+
+def handle_entity_already_exists_error(
+    e: EntityAlreadyExistsError,
+) -> tuple[Response, int]:
+    error_dto = ErrorDTO(
+        status=HTTPStatus.CONFLICT.value,
+        title=HTTPStatus.CONFLICT.phrase,
+        detail=str(e),
+        instance=request.path,
+    )
+    return jsonify(error_dto), 409
