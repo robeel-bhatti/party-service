@@ -1,5 +1,7 @@
 import os
+import sys
 from typing import Optional
+import logging
 
 from flask import Flask
 from flask_smorest import Api
@@ -23,6 +25,7 @@ class Config:
 
 def create_app() -> Flask:
     """Application factory pattern."""
+    init_logger()
     app = Flask(__name__)
     app.config.from_object(Config)
 
@@ -36,6 +39,17 @@ def create_app() -> Flask:
     api.register_blueprint(party_blp)
 
     return app
+
+
+def init_logger() -> None:
+    """Customize the root level logger.
+    These settings will then propagate down to the child loggers (flask, blueprint, service loggers etc).
+    """
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.DEBUG,
+        handlers=[logging.StreamHandler(stream=sys.stdout)],
+    )
 
 
 def init_di(app: Flask) -> None:

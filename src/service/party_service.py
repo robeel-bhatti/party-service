@@ -36,6 +36,7 @@ class PartyService:
             address = self._get_or_create_address(address_dto, created_by)
             party = self._create_party(party_dto, address.id, created_by)
             self._create_party_history(party, address, created_by)
+            logger.info(f"Party successfully created with ID: {party.id}")
             party_dto.id = party.id
             address_dto.id = address.id
             return party_dto.model_dump()
@@ -46,6 +47,7 @@ class PartyService:
         address_id: int,
         created_by: str,
     ) -> Party:
+        logger.info("Creating new Party.")
         party = to_party_model(party_dto)
         party.address_id = address_id
         party.created_by = created_by
@@ -61,6 +63,9 @@ class PartyService:
         address = self.uow.address_repository.get_by_hash(addr_hash)
 
         if address is None:
+            logger.info(
+                f"Address with hash {addr_hash} not found. Creating new Address."
+            )
             address = to_address_model(address_dto)
             address.hash = addr_hash
             address.created_by = created_by
@@ -73,6 +78,7 @@ class PartyService:
     def _create_party_history(
         self, party: Party, address: Address, created_by: str
     ) -> PartyHistory:
+        logger.info(f"Creating Party History record for Party: {party.id}.")
         party_history = to_party_history_model(party, address)
         party_history.created_by = created_by
         party_history.updated_by = created_by
