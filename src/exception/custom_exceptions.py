@@ -19,8 +19,3 @@ class ErrorDTO:
         err_dict = asdict(self)
         err_dict.update(extensions)
         return err_dict
-
-
-class EntityAlreadyExistsError(Exception):
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
