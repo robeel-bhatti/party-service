@@ -2,6 +2,7 @@ import logging
 from http import HTTPStatus
 
 from flask import Response, jsonify, request
+from sqlalchemy.exc import SQLAlchemyError
 from pydantic import ValidationError
 
 from src.exception.custom_exceptions import ErrorDTO
@@ -29,3 +30,17 @@ def handle_validation_error(e: ValidationError) -> tuple[Response, int]:
     ).to_dict(validation_errors=validation_errors)
 
     return jsonify(error_dto), 422
+
+
+def handle_database_error(e: SQLAlchemyError) -> tuple[Response, int]:
+    """Handle database errors that occur during the request."""
+
+    logger.error(f"The request failed due to the following database error: {e}")
+    error_dto = ErrorDTO(
+        status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+        title=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
+        detail="An unexpected error occurred processing request.",
+        instance=request.path,
+    ).to_dict()
+
+    return jsonify(error_dto), 500
