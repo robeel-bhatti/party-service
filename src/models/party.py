@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base
@@ -23,6 +23,5 @@ class Party(Base):
     email: Mapped[str] = mapped_column(String(50))
     phone_number: Mapped[str] = mapped_column(String(10))
     address_id: Mapped[int] = mapped_column(ForeignKey("party_service.address.id"))
-    hash: Mapped[str] = mapped_column(Text)
     address: Mapped["Address"] = relationship(back_populates="parties")
     history_records: Mapped[List["PartyHistory"]] = relationship(back_populates="party")

@@ -1,4 +1,3 @@
-import hashlib
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr
@@ -19,18 +18,3 @@ class PartyDTO(BaseModel):
     address: AddressDTO
     meta: MetaDTO
     id: Optional[int] = None
-
-    def get_hash(self) -> str:
-        """
-        Normalize party components, then get a deterministic hash.
-
-        In reality a hash that uniquely identifies an individual needs something like a SSN
-        so just making do for now.
-        """
-        normalized_string = (
-            f"{self.first_name} "
-            f"|{self.middle_name if self.middle_name else ''}"
-            f"|{self.last_name}"
-            f"|{self.email}"
-        )
-        return hashlib.sha256(normalized_string.encode()).hexdigest()
