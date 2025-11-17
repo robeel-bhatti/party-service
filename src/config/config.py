@@ -53,7 +53,7 @@ def init_logger() -> None:
 
 
 def init_di(app: Flask) -> None:
-    container = Container(app.session())
+    container = Container(app.session(), app.cache)
     app.container = container
 
 
@@ -89,6 +89,11 @@ def init_cache(app: Flask) -> None:
 
     cache = Redis.from_url(url)
     app.cache = cache
+
+    @app.teardown_appcontext
+    def close_session(exc: Optional[Exception] = None) -> None:
+        if hasattr(app, "cache"):
+            app.cache.close()
 
 
 def init_exception_handlers(app: Flask) -> None:

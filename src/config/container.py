@@ -1,7 +1,9 @@
 from typing import Optional
 
 from sqlalchemy.orm import Session
+from redis import Redis
 
+from repository.cache_repository import CacheRepository
 from src.repository.address_repository import AddressRepository
 from src.repository.party_history_repository import PartyHistoryRepository
 from src.repository.party_repository import PartyRepository
@@ -17,13 +19,21 @@ class Container:
     This class should only be instantiated once, when configuring it to be an attribute of the flask app object.
     """
 
-    def __init__(self, db_session: Session) -> None:
+    def __init__(self, db_session: Session, cache: Redis) -> None:
         self.db_session = db_session
+        self.cache = cache
+        self._cache_repository: Optional[CacheRepository] = None
         self._party_repository: Optional[PartyRepository] = None
         self._address_repository: Optional[AddressRepository] = None
         self._party_history_repository: Optional[PartyHistoryRepository] = None
         self._party_service: Optional[PartyService] = None
         self._unit_of_work: Optional[UnitOfWork] = None
+
+    @property
+    def cache_repository(self) -> CacheRepository:
+        if not self._cache_repository:
+            self._cache_repository = CacheRepository(self.cache)
+        return self._cache_repository
 
     @property
     def party_history_repository(self) -> PartyHistoryRepository:
