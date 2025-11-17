@@ -11,7 +11,8 @@ if TYPE_CHECKING:
 
 
 class PartyHistory(Base):
-    """Party history table model - stores historical versions of party records"""
+    """Represents a row from party_service.party_history
+    This table stores historical versions of party records."""
 
     __tablename__ = "party_history"
     __table_args__ = {"schema": "party_service"}

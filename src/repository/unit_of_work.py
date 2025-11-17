@@ -11,7 +11,10 @@ uow_logger = logging.getLogger(__name__)
 
 
 class UnitOfWork:
-    """This class will manage transactions across multiple repositories"""
+    """The class will manage transactions across multiple repositories.
+
+    This avoids the need to handle transactions using multiple repositories.
+    """
 
     def __init__(
         self,

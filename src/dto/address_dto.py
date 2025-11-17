@@ -9,6 +9,8 @@ from src.enums.state_enum import USState
 
 
 class AddressDTO(BaseModel):
+    """Validates the address information portion of the request payload"""
+
     model_config = ConfigDict(alias_generator=to_camel)
 
     street_one: GeneralStringConstraint

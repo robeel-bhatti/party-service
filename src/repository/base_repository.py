@@ -5,6 +5,12 @@ T = TypeVar("T")
 
 
 class BaseRepository(Generic[T]):
+    """Class to be inherited by all repositories.
+
+    Contains shared methods that are used or can potentially be used by all repos.
+    Only such methods should go in here.
+    """
+
     def __init__(self, session: Session, clazz: Type[T]) -> None:
         self.session = session
         self.clazz = clazz

@@ -10,7 +10,10 @@ if TYPE_CHECKING:
 
 
 class Address(Base):
-    """Address table model"""
+    """Represents a row from party_service.address
+
+    This table stores address information.
+    """
 
     __tablename__ = "address"
     __table_args__ = {"schema": "party_service"}

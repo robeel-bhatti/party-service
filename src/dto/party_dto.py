@@ -9,6 +9,8 @@ from src.dto.meta_dto import MetaDTO
 
 
 class PartyDTO(BaseModel):
+    """Validates the personal information portion of the request payload"""
+
     model_config = ConfigDict(alias_generator=to_camel)
     first_name: GeneralStringConstraint
     middle_name: Optional[GeneralStringConstraint] = None

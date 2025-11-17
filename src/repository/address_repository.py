@@ -6,6 +6,8 @@ from src.models.address import Address
 
 
 class AddressRepository(BaseRepository[Address]):
+    """Data access layer for address entities."""
+
     def __init__(self, session: Session) -> None:
         super().__init__(session, Address)
 

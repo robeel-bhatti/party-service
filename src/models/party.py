@@ -11,7 +11,10 @@ if TYPE_CHECKING:
 
 
 class Party(Base):
-    """Party table model"""
+    """Represents a row from party_service.party
+
+    This table stores party contact information.
+    """
 
     __tablename__ = "party"
     __table_args__ = {"schema": "party_service"}

@@ -10,6 +10,13 @@ from src.service.party_service import PartyService
 
 
 class Container:
+    """Dependency injection container.
+
+    This container creates and stores dependencies as instance attributes.
+    It injects dependencies where appropriate.
+    This class should only be instantiated once, when configuring it to be an attribute of the flask app object.
+    """
+
     def __init__(self, db_session: Session) -> None:
         self.db_session = db_session
         self._party_repository: Optional[PartyRepository] = None

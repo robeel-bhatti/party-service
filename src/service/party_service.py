@@ -13,10 +13,21 @@ logger = logging.getLogger(__name__)
 
 
 class PartyService:
+    """Orchestrate all business logic for the Party entity."""
+
     def __init__(self, unit_of_work: UnitOfWork):
         self.uow = unit_of_work
 
     def add_party(self, req: dict[str, Any]) -> dict[str, Any]:
+        """Create a new party.
+
+        One key piece of business logic is ensuring addresses stay unique.
+        If the address in the request payload already exists in the database,
+        assign its FK to the new Party.
+        If the address does not exist, create it then assign its FK to the new party.
+
+        Every party creation transaction is atomic.
+        """
         party_dto = PartyDTO(**req)
         address_dto = party_dto.address
         created_by = party_dto.meta.created_by

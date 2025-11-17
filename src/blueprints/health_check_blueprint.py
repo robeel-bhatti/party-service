@@ -8,4 +8,5 @@ hc_blp = Blueprint("health", "health")
 class HealthCheck(MethodView):
     @hc_blp.response(200)  # type: ignore
     def get(self) -> dict[str, str]:
+        """Health check endpoint to validate the service is up and running normally."""
         return {"message": "Party Service is healthy"}
