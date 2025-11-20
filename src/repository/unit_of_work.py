@@ -29,6 +29,11 @@ class UnitOfWork:
         self.party_history_repository = party_history_repository
 
     def __enter__(self) -> None:
+        """
+        When an instance of this class starts being used as a context manager, this magic method
+        will be invoked. This will start the database transaction.
+        :return:
+        """
         uow_logger.info("Starting Transaction...")
 
     def __exit__(
@@ -37,6 +42,14 @@ class UnitOfWork:
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> bool | None:
+        """
+        When an instance of this class stops being used as a context manager, this magic method
+        will be invoked. This will stop the database transaction by either committing or rolling back.
+        :param exc_type: The exception type, if an exception occurs.
+        :param exc_val: The exception value, if an exception occurs.
+        :param exc_tb: The exception traceback, if an exception occurs.
+        :return:
+        """
         if exc_type:
             print("Rolling back Transaction...")
             self.session.rollback()
@@ -46,4 +59,8 @@ class UnitOfWork:
         return None
 
     def flush(self) -> None:
+        """
+        Flush all object changes in the current transaction. This will allow us to retrieve the state of the entity
+        of how it will be persisted in the database, before we actually commit. Useful for getting the IDs of entities.
+        """
         self.session.flush()
