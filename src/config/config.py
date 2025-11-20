@@ -1,5 +1,7 @@
 import os
+import sys
 from typing import Optional
+import logging
 
 from flask import Flask
 from flask_smorest import Api
@@ -23,6 +25,7 @@ class Config:
 
 def create_app() -> Flask:
     """Application factory pattern."""
+    init_logger()
     app = Flask(__name__)
     app.config.from_object(Config)
 
@@ -30,6 +33,7 @@ def create_app() -> Flask:
     init_cache(app)
     init_di(app)
     init_exception_handlers(app)
+    register_teardown_logic(app)
 
     api = Api(app)
     api.register_blueprint(hc_blp)
@@ -38,9 +42,19 @@ def create_app() -> Flask:
     return app
 
 
+def init_logger() -> None:
+    """Customize the root level logger.
+    These settings will then propagate down to the child loggers (flask, blueprint, service loggers etc.).
+    """
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.DEBUG,
+        handlers=[logging.StreamHandler(stream=sys.stdout)],
+    )
+
+
 def init_di(app: Flask) -> None:
-    container = Container(app.session())
-    app.container = container
+    app.container = Container(app.session(), app.cache)
 
 
 def init_db(app: Flask) -> None:
@@ -60,11 +74,6 @@ def init_db(app: Flask) -> None:
     session_factory = sessionmaker(bind=engine)
     app.session = scoped_session(session_factory)
 
-    @app.teardown_appcontext
-    def close_session(exc: Optional[Exception] = None) -> None:
-        if hasattr(app, "session"):
-            app.session.remove()
-
 
 def init_cache(app: Flask) -> None:
     url = os.getenv("CACHE_URL")
@@ -73,9 +82,21 @@ def init_cache(app: Flask) -> None:
             "App failed to start because the environment variable 'REDIS_URL' is not set"
         )
 
-    cache = Redis.from_url(url)
-    app.cache = cache
+    app.cache = Redis.from_url(url)
 
 
 def init_exception_handlers(app: Flask) -> None:
     app.register_error_handler(ValidationError, handle_validation_error)
+
+
+def register_teardown_logic(app: Flask) -> None:
+    """Register logic to run when the application context is removed. This will occur when the app shutdowns."""
+
+    @app.teardown_appcontext
+    def cleanup(exc: Optional[Exception] = None) -> None:
+        if hasattr(app, "cache"):
+            app.logger.info("Closing redis connections")
+            app.cache.close()
+        if hasattr(app, "session"):
+            app.logger.info("Closing database connections")
+            app.session.remove()

@@ -1,6 +1,12 @@
 from enum import Enum
 
 
+class ServiceEntities(Enum):
+    PARTY = "party"
+    ADDRESS = "address"
+    PARTY_HISTORY = "party-history"
+
+
 class USState(Enum):
     AL = "AL"
     AK = "AK"

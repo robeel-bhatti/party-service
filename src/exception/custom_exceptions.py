@@ -4,7 +4,9 @@ from typing import Any, Self
 
 @dataclass(frozen=True)
 class ErrorDTO:
-    """Problem-Details error message format -> https://www.rfc-editor.org/rfc/rfc9457.html"""
+    """
+    Custom DTO that represents the error response payload.
+    This uses the Problem-Details error message format -> https://www.rfc-editor.org/rfc/rfc9457.html"""
 
     status: int
     title: str

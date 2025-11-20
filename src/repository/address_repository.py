@@ -1,21 +1,17 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import select
 
+from src.repository.base_repository import BaseRepository
 from src.models.address import Address
-from src.repository.abstract_repository import AbstractRepository
 
 
-class AddressRepository(AbstractRepository[Address]):
-    def __init__(self, session: Session):
-        self.session = session
+class AddressRepository(BaseRepository[Address]):
+    """Data access layer for address entities."""
 
-    # def get_all(self, query: str) -> list[Address]:
-    #     pass
+    def __init__(self, session: Session) -> None:
+        super().__init__(session, Address)
 
-    def get_by_id(self, id: int) -> Address:
-        return self.session.get_one(entity=Address, ident=id)
-
-    def add(self, entity: Address) -> None:
-        self.session.add(entity)
-
-    def delete(self, id: int) -> None:
-        self.session.delete(instance=Address)
+    def get_by_hash(self, address_hash: str) -> Address | None:
+        return self._session.execute(
+            select(Address).where(Address.hash == address_hash)
+        ).scalar()
