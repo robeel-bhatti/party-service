@@ -1,14 +1,11 @@
 from redis import Redis
 from pydantic import BaseModel
 import logging
-from typing import TYPE_CHECKING
+from typing import Awaitable
 from src.config.constants import AppConstants
 from src.config.enums import ServiceEntities
 
 logger = logging.getLogger(__name__)
-
-if TYPE_CHECKING:
-    from typing import Awaitable
 
 
 class CacheRepository:
