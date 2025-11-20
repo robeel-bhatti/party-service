@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic.alias_generators import to_camel
 
 from src.dto.custom_types import GeneralStringConstraint, PostalType
-from src.enums.state_enum import USState
+from src.config.enums import USState
 
 
 class AddressDTO(BaseModel):

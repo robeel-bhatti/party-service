@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from redis import Redis
 
-from repository.cache_repository import CacheRepository
+from src.repository.cache_repository import CacheRepository
 from src.repository.address_repository import AddressRepository
 from src.repository.party_history_repository import PartyHistoryRepository
 from src.repository.party_repository import PartyRepository
@@ -20,8 +20,8 @@ class Container:
     """
 
     def __init__(self, db_session: Session, cache: Redis) -> None:
-        self.db_session = db_session
-        self.cache = cache
+        self._db_session = db_session
+        self._cache = cache
         self._cache_repository: Optional[CacheRepository] = None
         self._party_repository: Optional[PartyRepository] = None
         self._address_repository: Optional[AddressRepository] = None
@@ -32,32 +32,32 @@ class Container:
     @property
     def cache_repository(self) -> CacheRepository:
         if not self._cache_repository:
-            self._cache_repository = CacheRepository(self.cache)
+            self._cache_repository = CacheRepository(self._cache)
         return self._cache_repository
 
     @property
     def party_history_repository(self) -> PartyHistoryRepository:
         if not self._party_history_repository:
-            self._party_history_repository = PartyHistoryRepository(self.db_session)
+            self._party_history_repository = PartyHistoryRepository(self._db_session)
         return self._party_history_repository
 
     @property
     def party_repository(self) -> PartyRepository:
         if not self._party_repository:
-            self._party_repository = PartyRepository(self.db_session)
+            self._party_repository = PartyRepository(self._db_session)
         return self._party_repository
 
     @property
     def address_repository(self) -> AddressRepository:
         if not self._address_repository:
-            self._address_repository = AddressRepository(self.db_session)
+            self._address_repository = AddressRepository(self._db_session)
         return self._address_repository
 
     @property
     def unit_of_work(self) -> UnitOfWork:
         if not self._unit_of_work:
             self._unit_of_work = UnitOfWork(
-                self.db_session,
+                self._db_session,
                 self.party_repository,
                 self.address_repository,
                 self.party_history_repository,
@@ -67,5 +67,5 @@ class Container:
     @property
     def party_service(self) -> PartyService:
         if not self._party_service:
-            self._party_service = PartyService(self.unit_of_work)
+            self._party_service = PartyService(self.unit_of_work, self.cache_repository)
         return self._party_service

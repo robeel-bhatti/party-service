@@ -12,11 +12,11 @@ class BaseRepository(Generic[T]):
     """
 
     def __init__(self, session: Session, clazz: Type[T]) -> None:
-        self.session = session
-        self.clazz = clazz
+        self._session = session
+        self._clazz = clazz
 
     def add(self, entity: T) -> None:
-        self.session.add(entity)
+        self._session.add(entity)
 
     def get_by_id(self, id: int) -> T:
-        return self.session.get_one(entity=self.clazz, ident=id)
+        return self._session.get_one(entity=self._clazz, ident=id)

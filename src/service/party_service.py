@@ -1,5 +1,7 @@
 from typing import Any
 
+from src.config.enums import ServiceEntities
+from src.repository.cache_repository import CacheRepository
 from src.dto.address_dto import AddressDTO
 from src.dto.party_dto import PartyDTO
 from src.mapper.mappers import to_address_model, to_party_history_model, to_party_model
@@ -15,8 +17,9 @@ logger = logging.getLogger(__name__)
 class PartyService:
     """Orchestrate all business logic for the Party entity."""
 
-    def __init__(self, unit_of_work: UnitOfWork):
-        self.uow = unit_of_work
+    def __init__(self, unit_of_work: UnitOfWork, cache_repository: CacheRepository):
+        self._uow = unit_of_work
+        self._cache_repository = cache_repository
 
     def add_party(self, req: dict[str, Any]) -> dict[str, Any]:
         """Create a new party.
@@ -32,13 +35,14 @@ class PartyService:
         address_dto = party_dto.address
         created_by = party_dto.meta.created_by
 
-        with self.uow:
+        with self._uow:
             address = self._get_or_create_address(address_dto, created_by)
             party = self._create_party(party_dto, address.id, created_by)
             self._create_party_history(party, address, created_by)
             logger.info(f"Party successfully created with ID: {party.id}")
             party_dto.id = party.id
             address_dto.id = address.id
+            self._cache_repository.add(party_dto.id, ServiceEntities.PARTY, party_dto)
             return party_dto.model_dump()
 
     def _create_party(
@@ -52,15 +56,15 @@ class PartyService:
         party.address_id = address_id
         party.created_by = created_by
         party.updated_by = created_by
-        self.uow.party_repository.add(party)
-        self.uow.flush()
+        self._uow.party_repository.add(party)
+        self._uow.flush()
         return party
 
     def _get_or_create_address(
         self, address_dto: AddressDTO, created_by: str
     ) -> Address:
         addr_hash = address_dto.get_hash()
-        address = self.uow.address_repository.get_by_hash(addr_hash)
+        address = self._uow.address_repository.get_by_hash(addr_hash)
 
         if address is None:
             logger.info(
@@ -70,8 +74,8 @@ class PartyService:
             address.hash = addr_hash
             address.created_by = created_by
             address.updated_by = created_by
-            self.uow.address_repository.add(address)
-            self.uow.flush()
+            self._uow.address_repository.add(address)
+            self._uow.flush()
 
         return address
 
@@ -82,5 +86,5 @@ class PartyService:
         party_history = to_party_history_model(party, address)
         party_history.created_by = created_by
         party_history.updated_by = created_by
-        self.uow.party_history_repository.add(party_history)
+        self._uow.party_history_repository.add(party_history)
         return party_history
