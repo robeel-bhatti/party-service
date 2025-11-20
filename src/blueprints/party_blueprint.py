@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class Party(MethodView):
     @party_blp.response(status_code=201)  # type: ignore[misc]
     def post(self) -> dict[str, Any]:
-        """Handles requests to create a new party."""
+        """Handles REST requests to create a new party."""
 
         logger.info("Request received to create Party.")
         party_service = current_app.container.party_service
