@@ -8,7 +8,7 @@ class BaseRepository(Generic[T]):
     """Class to be inherited by all repositories.
 
     Contains shared methods that are used or can potentially be used by all repos.
-    Only such methods should go in here.
+    Only such methods should go in here. This avoids having to rewrite duplicate methods across multiple repository classes.
     """
 
     def __init__(self, session: Session, clazz: Type[T]) -> None:

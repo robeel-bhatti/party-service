@@ -1,3 +1,5 @@
+"""This module will contain application enums. If too many enums, this can be broken out into separate modules."""
+
 from enum import Enum
 
 
