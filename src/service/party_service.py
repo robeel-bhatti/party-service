@@ -2,8 +2,8 @@ from typing import Any
 
 from src.config.enums import ServiceEntities
 from src.repository.cache_repository import CacheRepository
-from src.dto.address_dto import AddressDTO
-from src.dto.party_dto import PartyDTO
+from src.dto.address_dto import AddressRequest
+from src.dto.request_dtos import PartyRequest
 from src.mapper.mappers import to_address_model, to_party_history_model, to_party_model
 from src.models.address import Address
 from src.models.party import Party
@@ -31,7 +31,7 @@ class PartyService:
 
         Every party creation transaction is atomic.
         """
-        party_dto = PartyDTO(**req)
+        party_dto = PartyRequest(**req)
         address_dto = party_dto.address
         created_by = party_dto.meta.created_by
 
@@ -40,14 +40,12 @@ class PartyService:
             party = self._create_party(party_dto, address.id, created_by)
             self._create_party_history(party, address, created_by)
             logger.info(f"Party successfully created with ID: {party.id}")
-            party_dto.id = party.id
-            address_dto.id = address.id
-            self._cache_repository.add(party_dto.id, ServiceEntities.PARTY, party_dto)
+            self._cache_repository.add(party.id, ServiceEntities.PARTY, party_dto)
             return party_dto.model_dump()
 
     def _create_party(
         self,
-        party_dto: PartyDTO,
+        party_dto: PartyRequest,
         address_id: int,
         created_by: str,
     ) -> Party:
@@ -61,7 +59,7 @@ class PartyService:
         return party
 
     def _get_or_create_address(
-        self, address_dto: AddressDTO, created_by: str
+        self, address_dto: AddressRequest, created_by: str
     ) -> Address:
         addr_hash = address_dto.get_hash()
         address = self._uow.address_repository.get_by_hash(addr_hash)

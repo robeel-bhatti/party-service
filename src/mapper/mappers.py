@@ -1,11 +1,11 @@
-from src.dto.address_dto import AddressDTO
-from src.dto.party_dto import PartyDTO
+from src.dto.address_dto import AddressRequest
+from src.dto.request_dtos import PartyRequest
 from src.models.address import Address
 from src.models.party import Party
 from src.models.party_history import PartyHistory
 
 
-def to_party_model(party_dto: PartyDTO) -> Party:
+def to_party_model(party_dto: PartyRequest) -> Party:
     party = Party()
     party.first_name = party_dto.first_name
     party.last_name = party_dto.last_name
@@ -15,7 +15,7 @@ def to_party_model(party_dto: PartyDTO) -> Party:
     return party
 
 
-def to_address_model(address_dto: AddressDTO) -> Address:
+def to_address_model(address_dto: AddressRequest) -> Address:
     address = Address()
     address.street_one = address_dto.street_one
     address.street_two = address_dto.street_two

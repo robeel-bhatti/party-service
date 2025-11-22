@@ -1,14 +1,38 @@
-import hashlib
-from typing import Optional, Self
+from datetime import datetime
+from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr
 from pydantic.alias_generators import to_camel
 
-from src.dto.custom_types import GeneralStringConstraint, PostalType
+
+import hashlib
+from typing import Self
+
+from pydantic import Field, model_validator
+
 from src.config.enums import USState
 
+from typing import Annotated
 
-class AddressDTO(BaseModel):
+# Custom types to be reused against fields belonging in multiple pydantic models.
+GeneralStringConstraint = Annotated[
+    str, Field(min_length=1, max_length=100, pattern=r"^[a-zA-Z0-9\s\-\.']+$")
+]
+PhoneType = Annotated[str, Field(min_length=10, max_length=10, pattern=r"^[1-9]\d{9}$")]
+PostalType = Annotated[
+    str, Field(min_length=1, max_length=10, pattern=r"^\d{5}(-\d{4})?$")
+]
+
+
+class MetaRequest(BaseModel):
+    """Validates the metadata information in the request payload."""
+
+    model_config = ConfigDict(alias_generator=to_camel)
+    created_by: GeneralStringConstraint
+    created_at: datetime
+
+
+class AddressRequest(BaseModel):
     """Validates the address information portion of the request payload"""
 
     model_config = ConfigDict(alias_generator=to_camel)
@@ -19,7 +43,6 @@ class AddressDTO(BaseModel):
     state: str = Field(min_length=2, max_length=2)
     postal_code: PostalType
     country: str = Field(min_length=3, max_length=3)
-    id: Optional[int] = None
 
     @model_validator(mode="after")
     def parse_state(self) -> Self:
@@ -33,7 +56,7 @@ class AddressDTO(BaseModel):
 
     @model_validator(mode="after")
     def normalize_fields(self) -> Self:
-        for name in AddressDTO.model_fields.keys():
+        for name in AddressRequest.model_fields.keys():
             val = getattr(self, name)
             if val:
                 val = val.strip()
@@ -59,3 +82,16 @@ class AddressDTO(BaseModel):
             f"|{self.country}"
         )
         return hashlib.sha256(normalized_string.encode()).hexdigest()
+
+
+class PartyRequest(BaseModel):
+    """Validates the personal information portion of the request payload"""
+
+    model_config = ConfigDict(alias_generator=to_camel)
+    first_name: GeneralStringConstraint
+    middle_name: Optional[GeneralStringConstraint] = None
+    last_name: GeneralStringConstraint
+    email: EmailStr
+    phone_number: PhoneType
+    address: AddressRequest
+    meta: MetaRequest
