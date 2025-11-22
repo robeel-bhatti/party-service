@@ -1,32 +1,36 @@
-from src.dto.address_dto import AddressRequest
-from src.dto.request_dtos import PartyRequest
+from src.dto.request_dtos import PartyRequest, AddressRequest
 from src.models.address import Address
 from src.models.party import Party
 from src.models.party_history import PartyHistory
 
 
-def to_party_model(party_dto: PartyRequest) -> Party:
+def to_party(party_request: PartyRequest) -> Party:
     party = Party()
-    party.first_name = party_dto.first_name
-    party.last_name = party_dto.last_name
-    party.middle_name = party_dto.middle_name
-    party.email = str(party_dto.email)
-    party.phone_number = str(party_dto.phone_number)
+    party.first_name = party_request.first_name
+    party.last_name = party_request.last_name
+    party.middle_name = party_request.middle_name
+    party.email = str(party_request.email)
+    party.phone_number = str(party_request.phone_number)
+    party.created_by = party_request.meta.created_by
+    party.updated_by = party_request.meta.created_by
     return party
 
 
-def to_address_model(address_dto: AddressRequest) -> Address:
+def to_address(address_request: AddressRequest) -> Address:
     address = Address()
-    address.street_one = address_dto.street_one
-    address.street_two = address_dto.street_two
-    address.city = address_dto.city
-    address.state = address_dto.state
-    address.postal_code = address_dto.postal_code
-    address.country = address_dto.country
+    address.street_one = address_request.street_one
+    address.street_two = address_request.street_two
+    address.city = address_request.city
+    address.state = address_request.state
+    address.postal_code = address_request.postal_code
+    address.country = address_request.country
+    address.created_by = address_request.meta.created_by
+    address.updated_by = address_request.meta.created_by
+    address.hash = address_request.get_hash()
     return address
 
 
-def to_party_history_model(party: Party, address: Address) -> PartyHistory:
+def to_party_history(party: Party, address: Address) -> PartyHistory:
     party_history = PartyHistory()
     party_history.party_id = party.id
     party_history.first_name = party.first_name
