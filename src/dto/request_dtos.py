@@ -43,6 +43,7 @@ class AddressRequest(BaseModel):
     state: str = Field(min_length=2, max_length=2)
     postal_code: PostalType
     country: str = Field(min_length=3, max_length=3)
+    meta: MetaRequest
 
     @model_validator(mode="after")
     def parse_state(self) -> Self:
