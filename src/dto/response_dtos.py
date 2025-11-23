@@ -22,6 +22,7 @@ class MetaResponse:
 
 @dataclass
 class AddressResponse:
+    id: int
     street_one: str
     city: str
     state: str
@@ -33,6 +34,7 @@ class AddressResponse:
 
 @dataclass
 class PartyResponse:
+    id: int
     first_name: str
     last_name: str
     email: str

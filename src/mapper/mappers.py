@@ -67,6 +67,7 @@ def to_meta_response(model: Base) -> MetaResponse:
 
 def to_address_response(address: Address) -> AddressResponse:
     return AddressResponse(
+        id=address.id,
         street_one=address.street_one,
         street_two=address.street_two,
         city=address.city,
@@ -79,6 +80,7 @@ def to_address_response(address: Address) -> AddressResponse:
 
 def to_party_response(party: Party, address: Address) -> PartyResponse:
     return PartyResponse(
+        id=party.id,
         first_name=party.first_name,
         middle_name=party.middle_name,
         last_name=party.last_name,

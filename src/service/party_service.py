@@ -43,25 +43,32 @@ class PartyService:
 
             party_history = mappers.to_party_history(party, address)
             self._create_party_history(party_history)
-
             party_response = mappers.to_party_response(party, address).to_dict()
-            self._cache_repository.add(party.id, ServiceEntities.PARTY, party_response)
-            return party_response
+
+        self._cache_repository.add(party.id, ServiceEntities.PARTY, party_response)
+        logger.info(f"Party with ID {party.id} successfully created.")
+        return party_response
 
     def _create_party(self, party: Party) -> Party:
+        logger.info("Inserting new party into database.")
         self._uow.party_repository.add(party)
         self._uow.flush()
         return party
 
     def _create_address(self, address: Address) -> Address:
+        logger.info("Inserting new address into database.")
         self._uow.address_repository.add(address)
         self._uow.flush()
         return address
 
     def _create_party_history(self, party_history: PartyHistory) -> PartyHistory:
+        logger.info(
+            f"Inserting new party history for Party {party_history.party_id} into database."
+        )
         self._uow.party_history_repository.add(party_history)
         self._uow.flush()
         return party_history
 
     def _get_address_by_hash(self, address_hash: str) -> Address | None:
+        logger.info(f"Getting address from hash: {address_hash}")
         return self._uow.address_repository.get_by_hash(address_hash)
