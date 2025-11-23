@@ -1,5 +1,6 @@
 from redis import Redis
 import logging
+import json
 from typing import Awaitable, Any
 from src.config.constants import AppConstants
 from src.config.enums import ServiceEntities
@@ -20,7 +21,7 @@ class CacheRepository:
         :param entity: An enum identifying the entity being stored.
         :param value: The attributes of the entity.
         """
-        bytes_val = value.model_dump_json().encode("utf-8")
+        bytes_val = json.dumps(value).encode("utf-8")
         self._cache.set(
             self._generate_key(id, entity), bytes_val
         )  # TODO: expiration time

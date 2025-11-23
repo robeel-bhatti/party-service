@@ -1,10 +1,8 @@
 from typing import Any
-
 from src.config.enums import ServiceEntities
 from src.repository.cache_repository import CacheRepository
-from src.dto.address_dto import AddressRequest
 from src.dto.request_dtos import PartyRequest
-from src.mapper.mappers import to_address_model, to_party_history_model, to_party_model
+from src.mapper import mappers
 from src.models.address import Address
 from src.models.party import Party
 from src.models.party_history import PartyHistory
@@ -31,58 +29,39 @@ class PartyService:
 
         Every party creation transaction is atomic.
         """
-        party_dto = PartyRequest(**req)
-        address_dto = party_dto.address
-        created_by = party_dto.meta.created_by
-
+        party_request = PartyRequest(**req)
         with self._uow:
-            address = self._get_or_create_address(address_dto, created_by)
-            party = self._create_party(party_dto, address.id, created_by)
-            self._create_party_history(party, address, created_by)
-            logger.info(f"Party successfully created with ID: {party.id}")
-            self._cache_repository.add(party.id, ServiceEntities.PARTY, party_dto)
-            return party_dto.model_dump()
+            address = self._get_address_by_hash(party_request.address.get_hash())
+            if address is None:
+                address = self._create_address(
+                    mappers.to_address(party_request.address)
+                )
 
-    def _create_party(
-        self,
-        party_dto: PartyRequest,
-        address_id: int,
-        created_by: str,
-    ) -> Party:
-        logger.info("Creating new Party.")
-        party = to_party_model(party_dto)
-        party.address_id = address_id
-        party.created_by = created_by
-        party.updated_by = created_by
+            party = mappers.to_party(party_request)
+            party.address_id = address.id
+            party = self._create_party(party)
+
+            party_history = mappers.to_party_history(party, address)
+            self._create_party_history(party_history)
+
+            party_response = mappers.to_party_response(party, address).to_dict()
+            self._cache_repository.add(party.id, ServiceEntities.PARTY, party_response)
+            return party_response
+
+    def _create_party(self, party: Party) -> Party:
         self._uow.party_repository.add(party)
         self._uow.flush()
         return party
 
-    def _get_or_create_address(
-        self, address_dto: AddressRequest, created_by: str
-    ) -> Address:
-        addr_hash = address_dto.get_hash()
-        address = self._uow.address_repository.get_by_hash(addr_hash)
-
-        if address is None:
-            logger.info(
-                f"Address with hash {addr_hash} not found. Creating new Address."
-            )
-            address = to_address_model(address_dto)
-            address.hash = addr_hash
-            address.created_by = created_by
-            address.updated_by = created_by
-            self._uow.address_repository.add(address)
-            self._uow.flush()
-
+    def _create_address(self, address: Address) -> Address:
+        self._uow.address_repository.add(address)
+        self._uow.flush()
         return address
 
-    def _create_party_history(
-        self, party: Party, address: Address, created_by: str
-    ) -> PartyHistory:
-        logger.info(f"Creating Party History record for Party: {party.id}.")
-        party_history = to_party_history_model(party, address)
-        party_history.created_by = created_by
-        party_history.updated_by = created_by
+    def _create_party_history(self, party_history: PartyHistory) -> PartyHistory:
         self._uow.party_history_repository.add(party_history)
+        self._uow.flush()
         return party_history
+
+    def _get_address_by_hash(self, address_hash: str) -> Address | None:
+        return self._uow.address_repository.get_by_hash(address_hash)

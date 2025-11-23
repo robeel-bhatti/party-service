@@ -59,7 +59,7 @@ class AddressRequest(BaseModel):
     def normalize_fields(self) -> Self:
         for name in AddressRequest.model_fields.keys():
             val = getattr(self, name)
-            if val:
+            if val and name != "meta":
                 val = val.strip()
                 if name == "state" or name == "country":
                     val = val.upper()
