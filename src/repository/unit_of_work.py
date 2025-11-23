@@ -34,7 +34,7 @@ class UnitOfWork:
         will be invoked. This will start the database transaction.
         :return:
         """
-        uow_logger.info("Starting Transaction...")
+        uow_logger.debug("Starting Transaction...")
 
     def __exit__(
         self,
@@ -51,10 +51,11 @@ class UnitOfWork:
         :return:
         """
         if exc_type:
-            print("Rolling back Transaction...")
+            uow_logger.debug("Rolling back Transaction...")
             self.session.rollback()
             return False
 
+        uow_logger.debug("Committing Transaction.")
         self.session.commit()
         return None
 

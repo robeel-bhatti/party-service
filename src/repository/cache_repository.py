@@ -22,10 +22,7 @@ class CacheRepository:
         :param value: The attributes of the entity.
         """
         bytes_val = json.dumps(value).encode("utf-8")
-        self._cache.set(
-            self._generate_key(id, entity), bytes_val
-        )  # TODO: expiration time
-        logger.info(f"Party with ID {id} saved in cache.")
+        self._cache.set(self._generate_key(id, entity), bytes_val, ex=86400)
 
     def get(self, id: int, entity: ServiceEntities) -> Awaitable[bytes]:
         """
