@@ -50,6 +50,7 @@ def init_logger() -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         level=logging.DEBUG,
         handlers=[logging.StreamHandler(stream=sys.stdout)],
+        force=True,  # override the werkzeug logger to all loggers use these settings
     )
 
 

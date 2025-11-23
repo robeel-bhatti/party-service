@@ -48,7 +48,7 @@ class PartyService:
 
         try:
             self._cache_repository.add(party.id, ServiceEntities.PARTY, party_response)
-            logger.debug(f"Party with ID {id} saved in cache.")
+            logger.debug(f"Party with ID {party.id} saved in cache.")
         except RedisError as e:
             logger.warning(f"Error caching Party with ID {party.id}: {e}")
 
