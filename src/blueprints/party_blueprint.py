@@ -16,6 +16,6 @@ class Party(MethodView):
     def post(self) -> dict[str, Any]:
         """Handles REST requests to create a new party."""
 
-        logger.info("Request received to create Party.")
+        logger.info("POST /parties endpoint received request to create Party.")
         party_service = current_app.container.party_service
         return party_service.add_party(request.json)  # type: ignore[no-any-return]

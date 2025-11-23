@@ -1,0 +1,47 @@
+from datetime import datetime
+from dataclasses import dataclass, asdict
+from typing import Self, Any
+
+
+def make_json_serializable(data: list[tuple[str, Any]]) -> dict[str, Any]:
+    def convert_value(value: Any) -> Any:
+        if isinstance(value, datetime):
+            return value.isoformat()
+        return value
+
+    return {k: convert_value(v) for k, v in data}
+
+
+@dataclass
+class MetaResponse:
+    created_by: str
+    updated_by: str
+    created_at: datetime
+    updated_at: datetime
+
+
+@dataclass
+class AddressResponse:
+    id: int
+    street_one: str
+    city: str
+    state: str
+    postal_code: str
+    country: str
+    meta: MetaResponse
+    street_two: str | None = None
+
+
+@dataclass
+class PartyResponse:
+    id: int
+    first_name: str
+    last_name: str
+    email: str
+    phone_number: str
+    address: AddressResponse
+    meta: MetaResponse
+    middle_name: str | None = None
+
+    def to_dict(self: Self) -> dict[str, Any]:
+        return asdict(self, dict_factory=make_json_serializable)
