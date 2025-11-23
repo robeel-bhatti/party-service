@@ -1,17 +1,11 @@
 from datetime import datetime
 from typing import Optional
-
 from pydantic import BaseModel, ConfigDict, EmailStr
 from pydantic.alias_generators import to_camel
-
-
 import hashlib
 from typing import Self
-
 from pydantic import Field, model_validator
-
 from src.config.enums import USState
-
 from typing import Annotated
 
 # Custom types to be reused against fields belonging in multiple pydantic models.
