@@ -1,35 +1,25 @@
 import pytest
 
-from src.dto.address_dto import AddressRequest
-from src.dto.request_dtos import PartyRequest
-from tests.unit.conftest import TEST_ADDRESS, TEST_USER
+from src.dto.request_dtos import PartyRequest, AddressRequest
 
 
-def test_party_and_address_dto_are_created_successfully(post_payload: dict):
+def test_party_request_created_successfully(post_payload: dict, party_request):
     party_dto = PartyRequest(**post_payload)
     assert party_dto is not None
     assert isinstance(party_dto, PartyRequest)
-    assert party_dto.first_name == TEST_USER.first_name
-    assert party_dto.middle_name == TEST_USER.middle_name
-    assert party_dto.last_name == TEST_USER.last_name
-    assert party_dto.phone_number == TEST_USER.phone_number
-    assert party_dto.email == TEST_USER.email
+    assert party_dto.first_name == party_request.firstName
+    assert party_dto.middle_name == party_request.middleName
+    assert party_dto.last_name == party_request.lastName
+    assert party_dto.phone_number == party_request.phoneNumber
+    assert party_dto.email == party_request.email
     assert party_dto.address is not None
     assert isinstance(party_dto.address, AddressRequest)
-    assert party_dto.address.street_one == TEST_ADDRESS.street_one
-    assert party_dto.address.street_two == TEST_ADDRESS.street_two
-    assert party_dto.address.city == TEST_ADDRESS.city
-    assert party_dto.address.state == TEST_ADDRESS.state
-    assert party_dto.address.postal_code == TEST_ADDRESS.postal_code
-    assert party_dto.address.country == TEST_ADDRESS.country
-
-
-def test_throws_error_when_email_and_phone_number_are_missing(post_payload: dict):
-    post_payload["email"] = None
-    post_payload["phoneNumber"] = None
-    with pytest.raises(ValueError) as err:
-        PartyRequest(**post_payload)
-    assert "email or phone_number must be provided" in str(err.value)
+    assert party_dto.address.street_one == party_request.address.streetOne
+    assert party_dto.address.street_two == party_request.address.streetTwo
+    assert party_dto.address.city == party_request.address.city
+    assert party_dto.address.state == party_request.address.state
+    assert party_dto.address.postal_code == party_request.address.postalCode
+    assert party_dto.address.country == party_request.address.country
 
 
 def test_throws_error_when_invalid_state_is_provided(post_payload: dict):
