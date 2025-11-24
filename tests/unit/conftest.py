@@ -1,10 +1,12 @@
 from dataclasses import dataclass, asdict, field
 from datetime import datetime
 from src.dto.response_dtos import PartyResponse, AddressResponse, MetaResponse
-
 import pytest
+from src.service.party_service import PartyService
+from src.models import Party, Address, PartyHistory
 
 
+# --- Basic test data ---
 @dataclass
 class TestMeta:
     createdBy: str = "test.user"
@@ -33,6 +35,7 @@ class TestParty:
     meta: TestMeta = field(default_factory=TestMeta)
 
 
+# --- Request DTO fixtures ---
 @pytest.fixture
 def party_request() -> TestParty:
     return TestParty()
@@ -43,6 +46,7 @@ def post_payload(party_request) -> dict:
     return asdict(party_request)
 
 
+# --- Response DTO fixtures ---
 @pytest.fixture
 def meta_response():
     test_meta = TestMeta()
@@ -82,3 +86,63 @@ def party_response(address_response, meta_response):
         address=address_response,
         meta=meta_response,
     )
+
+
+@pytest.fixture
+def mock_uow(mocker):
+    """Mock Unit of Work with all repositories"""
+    uow = mocker.MagicMock()
+    uow.party_repository = mocker.MagicMock()
+    uow.address_repository = mocker.MagicMock()
+    uow.party_history_repository = mocker.MagicMock()
+    uow.__enter__ = mocker.MagicMock(return_value=None)
+    uow.__exit__ = mocker.MagicMock(return_value=True)
+    return uow
+
+
+@pytest.fixture
+def mock_cache_repository(mocker):
+    return mocker.MagicMock()
+
+
+@pytest.fixture
+def party_service(mock_uow, mock_cache_repository):
+    return PartyService(mock_uow, mock_cache_repository)
+
+
+@pytest.fixture
+def mock_address(mocker):
+    address = mocker.MagicMock(spec=Address)
+    address.id = 1
+    address.street_one = "123 Main St"
+    address.street_two = "Apt 4B"
+    address.city = "Springfield"
+    address.state = "IL"
+    address.postal_code = "62704"
+    address.country = "USA"
+    return address
+
+
+@pytest.fixture
+def mock_party(mocker):
+    party = mocker.MagicMock(spec=Party)
+    party.id = 1
+    party.first_name = "John"
+    party.middle_name = "A."
+    party.last_name = "Doe"
+    party.email = "john.doe@example.com"
+    party.phone_number = "5551234567"
+    return party
+
+
+@pytest.fixture
+def mock_party_history(mocker):
+    history = mocker.MagicMock(spec=PartyHistory)
+    history.id = 1
+    history.party_id = 1
+    return history
+
+
+@pytest.fixture
+def mock_mappers(mocker):
+    return mocker.patch("src.service.party_service.mappers")
