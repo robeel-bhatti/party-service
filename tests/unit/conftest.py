@@ -6,7 +6,6 @@ from src.service.party_service import PartyService
 from src.models import Party, Address, PartyHistory
 
 
-# --- Basic test data ---
 @dataclass
 class TestMeta:
     createdBy: str = "test.user"
@@ -35,18 +34,16 @@ class TestParty:
     meta: TestMeta = field(default_factory=TestMeta)
 
 
-# --- Request DTO fixtures ---
 @pytest.fixture
-def party_request() -> TestParty:
+def test_party() -> TestParty:
     return TestParty()
 
 
 @pytest.fixture
-def post_payload(party_request) -> dict:
-    return asdict(party_request)
+def post_payload(test_party) -> dict:
+    return asdict(test_party)
 
 
-# --- Response DTO fixtures ---
 @pytest.fixture
 def meta_response():
     test_meta = TestMeta()
@@ -111,27 +108,27 @@ def party_service(mock_uow, mock_cache_repository):
 
 
 @pytest.fixture
-def mock_address(mocker):
+def mock_address(mocker, test_party):
     address = mocker.MagicMock(spec=Address)
     address.id = 1
-    address.street_one = "123 Main St"
-    address.street_two = "Apt 4B"
-    address.city = "Springfield"
-    address.state = "IL"
-    address.postal_code = "62704"
-    address.country = "USA"
+    address.street_one = test_party.address.streetOne
+    address.street_two = test_party.address.streetTwo
+    address.city = test_party.address.city
+    address.state = test_party.address.state
+    address.postal_code = test_party.address.postalCode
+    address.country = test_party.address.country
     return address
 
 
 @pytest.fixture
-def mock_party(mocker):
+def mock_party(mocker, test_party):
     party = mocker.MagicMock(spec=Party)
     party.id = 1
-    party.first_name = "John"
-    party.middle_name = "A."
-    party.last_name = "Doe"
-    party.email = "john.doe@example.com"
-    party.phone_number = "5551234567"
+    party.first_name = test_party.firstName
+    party.middle_name = test_party.middleName
+    party.last_name = test_party.lastName
+    party.email = test_party.email
+    party.phone_number = test_party.phoneNumber
     return party
 
 
