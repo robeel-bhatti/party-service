@@ -35,59 +35,103 @@ class TestParty:
 
 
 @pytest.fixture
-def test_party() -> TestParty:
+def default_party_data() -> TestParty:
     return TestParty()
 
 
 @pytest.fixture
-def post_payload(test_party) -> dict:
-    return asdict(test_party)
+def default_address_data() -> TestAddress:
+    return TestAddress()
 
 
 @pytest.fixture
-def meta_response():
-    test_meta = TestMeta()
+def default_meta_data() -> TestMeta:
+    return TestMeta()
+
+
+@pytest.fixture
+def post_payload(default_party_data) -> dict:
+    return asdict(default_party_data)
+
+
+@pytest.fixture
+def meta_response(default_meta_data):
     return MetaResponse(
-        created_by=test_meta.createdBy,
-        updated_by=test_meta.createdBy,
-        created_at=test_meta.createdAt,
-        updated_at=test_meta.createdAt,
+        created_by=default_meta_data.createdBy,
+        updated_by=default_meta_data.createdBy,
+        created_at=default_meta_data.createdAt,
+        updated_at=default_meta_data.createdAt,
     )
 
 
 @pytest.fixture
-def address_response(meta_response):
-    test_address = TestAddress()
+def address_response(default_address_data, meta_response):
     return AddressResponse(
         id=1,
-        street_one=test_address.streetOne,
-        street_two=test_address.streetTwo,
-        city=test_address.city,
-        state=test_address.state,
-        postal_code=test_address.postalCode,
-        country=test_address.country,
+        street_one=default_address_data.streetOne,
+        street_two=default_address_data.streetTwo,
+        city=default_address_data.city,
+        state=default_address_data.state,
+        postal_code=default_address_data.postalCode,
+        country=default_address_data.country,
         meta=meta_response,
     )
 
 
 @pytest.fixture
-def party_response(address_response, meta_response):
-    test_party = TestParty()
+def party_response(default_party_data, address_response, meta_response):
     return PartyResponse(
         id=1,
-        first_name=test_party.firstName,
-        middle_name=test_party.middleName,
-        last_name=test_party.lastName,
-        email=test_party.email,
-        phone_number=test_party.phoneNumber,
+        first_name=default_party_data.firstName,
+        middle_name=default_party_data.middleName,
+        last_name=default_party_data.lastName,
+        email=default_party_data.email,
+        phone_number=default_party_data.phoneNumber,
         address=address_response,
         meta=meta_response,
     )
 
 
 @pytest.fixture
+def party_fixture(default_party_data):
+    party = Party()
+    party.id = 1
+    party.first_name = default_party_data.firstName
+    party.middle_name = default_party_data.middleName
+    party.last_name = default_party_data.lastName
+    party.email = default_party_data.email
+    party.phone_number = default_party_data.phoneNumber
+    return party
+
+
+@pytest.fixture
+def address_fixture(default_party_data):
+    address = Address()
+    address.id = 1
+    address.street_one = default_party_data.address.streetOne
+    address.street_two = default_party_data.address.streetTwo
+    address.city = default_party_data.address.city
+    address.state = default_party_data.address.state
+    address.postal_code = default_party_data.address.postalCode
+    address.country = default_party_data.address.country
+    return address
+
+
+@pytest.fixture
+def party_history_fixture():
+    history = PartyHistory()
+    history.id = 1
+    history.party_id = 1
+    return history
+
+
+@pytest.fixture
+def party_service(mock_uow, mock_cache_repository):
+    return PartyService(mock_uow, mock_cache_repository)
+
+
+@pytest.fixture
 def mock_uow(mocker):
-    """Mock Unit of Work with all repositories"""
     uow = mocker.MagicMock()
     uow.party_repository = mocker.MagicMock()
     uow.address_repository = mocker.MagicMock()
@@ -100,44 +144,6 @@ def mock_uow(mocker):
 @pytest.fixture
 def mock_cache_repository(mocker):
     return mocker.MagicMock()
-
-
-@pytest.fixture
-def party_service(mock_uow, mock_cache_repository):
-    return PartyService(mock_uow, mock_cache_repository)
-
-
-@pytest.fixture
-def mock_address(mocker, test_party):
-    address = mocker.MagicMock(spec=Address)
-    address.id = 1
-    address.street_one = test_party.address.streetOne
-    address.street_two = test_party.address.streetTwo
-    address.city = test_party.address.city
-    address.state = test_party.address.state
-    address.postal_code = test_party.address.postalCode
-    address.country = test_party.address.country
-    return address
-
-
-@pytest.fixture
-def mock_party(mocker, test_party):
-    party = mocker.MagicMock(spec=Party)
-    party.id = 1
-    party.first_name = test_party.firstName
-    party.middle_name = test_party.middleName
-    party.last_name = test_party.lastName
-    party.email = test_party.email
-    party.phone_number = test_party.phoneNumber
-    return party
-
-
-@pytest.fixture
-def mock_party_history(mocker):
-    history = mocker.MagicMock(spec=PartyHistory)
-    history.id = 1
-    history.party_id = 1
-    return history
 
 
 @pytest.fixture

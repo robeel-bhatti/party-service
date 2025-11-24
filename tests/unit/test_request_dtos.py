@@ -3,23 +3,23 @@ import pytest
 from src.dto.request_dtos import PartyRequest, AddressRequest
 
 
-def test_party_request_created_successfully(post_payload: dict, test_party):
+def test_party_request_created_successfully(post_payload: dict, default_party_data):
     party_dto = PartyRequest(**post_payload)
     assert party_dto is not None
     assert isinstance(party_dto, PartyRequest)
-    assert party_dto.first_name == test_party.firstName
-    assert party_dto.middle_name == test_party.middleName
-    assert party_dto.last_name == test_party.lastName
-    assert party_dto.phone_number == test_party.phoneNumber
-    assert party_dto.email == test_party.email
+    assert party_dto.first_name == default_party_data.firstName
+    assert party_dto.middle_name == default_party_data.middleName
+    assert party_dto.last_name == default_party_data.lastName
+    assert party_dto.phone_number == default_party_data.phoneNumber
+    assert party_dto.email == default_party_data.email
     assert party_dto.address is not None
     assert isinstance(party_dto.address, AddressRequest)
-    assert party_dto.address.street_one == test_party.address.streetOne
-    assert party_dto.address.street_two == test_party.address.streetTwo
-    assert party_dto.address.city == test_party.address.city
-    assert party_dto.address.state == test_party.address.state
-    assert party_dto.address.postal_code == test_party.address.postalCode
-    assert party_dto.address.country == test_party.address.country
+    assert party_dto.address.street_one == default_party_data.address.streetOne
+    assert party_dto.address.street_two == default_party_data.address.streetTwo
+    assert party_dto.address.city == default_party_data.address.city
+    assert party_dto.address.state == default_party_data.address.state
+    assert party_dto.address.postal_code == default_party_data.address.postalCode
+    assert party_dto.address.country == default_party_data.address.country
 
 
 def test_throws_error_when_invalid_state_is_provided(post_payload: dict):
