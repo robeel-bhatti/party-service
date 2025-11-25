@@ -26,23 +26,6 @@ wheels = [
 ]
 
 [[package]]
-name = "apispec"
-version = "6.8.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "packaging" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/da/88/b94988c3f959836829db9a83dacb6a09809c7aea16ad962050c5ce78c8f3/apispec-6.8.4.tar.gz", hash = "sha256:fd0ed14af71a2949d9aeb96b72ce1517cb4a48a5c55667cd0483b7ed33156a2a", size = 77737, upload-time = "2025-09-22T20:01:17.51Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3e/b5/92b037889c7ae8a875f276c8b1e636b3ac76d10e57a82e90340efebcb8d1/apispec-6.8.4-py3-none-any.whl", hash = "sha256:18d6cfaf6a9742d4f9a8f364bfabb7e8884983e10b155ad13616e084f47164ef", size = 30633, upload-time = "2025-09-22T20:01:16.17Z" },
-]
-
-[package.optional-dependencies]
-marshmallow = [
-    { name = "marshmallow" },
-]
-
-[[package]]
 name = "argcomplete"
 version = "3.6.2"
 source = { registry = "https://pypi.org/simple" }
@@ -284,22 +267,6 @@ wheels = [
 ]
 
 [[package]]
-name = "flask-smorest"
-version = "0.46.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "apispec", extra = ["marshmallow"] },
-    { name = "flask" },
-    { name = "marshmallow" },
-    { name = "webargs" },
-    { name = "werkzeug" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/20/09/70074c15a9644a1def601b4fc78c114d4b2f4275310bc3476d1411da3003/flask_smorest-0.46.2.tar.gz", hash = "sha256:7d9099a37a5add415670d6904ae032eefc1d2ba2432f060d7c048c74fc655a80", size = 77421, upload-time = "2025-09-10T20:18:26.991Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5d/92/f5176b1bfc672c4d91c5ca70941c72e1e61bd28bce53037680c1e79be330/flask_smorest-0.46.2-py3-none-any.whl", hash = "sha256:caff5b95d575044f90854c70a218d4c05bc920e462fdca2c58c0dd48ce29946c", size = 32329, upload-time = "2025-09-10T20:18:25.58Z" },
-]
-
-[[package]]
 name = "greenlet"
 version = "3.2.4"
 source = { registry = "https://pypi.org/simple" }
@@ -416,15 +383,6 @@ wheels = [
 ]
 
 [[package]]
-name = "marshmallow"
-version = "4.0.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/cc/ff/8f092fe402ef12aa71b7f4ceba0c557ce4d5876a9cf421e01a67b7210560/marshmallow-4.0.1.tar.gz", hash = "sha256:e1d860bd262737cb2d34e1541b84cb52c32c72c9474e3fe6f30f137ef8b0d97f", size = 220453, upload-time = "2025-08-28T15:01:37.044Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/cc/18/297efc62b3539b9cd379fc49be3740a02e4c8a43e486f50322cfe0b9568a/marshmallow-4.0.1-py3-none-any.whl", hash = "sha256:72f14ef346f81269dbddee891bac547dda1501e9e08b6a809756ea3dbb7936a1", size = 48414, upload-time = "2025-08-28T15:01:35.221Z" },
-]
-
-[[package]]
 name = "mypy"
 version = "1.18.2"
 source = { registry = "https://pypi.org/simple" }
@@ -485,7 +443,6 @@ dependencies = [
     { name = "alembic" },
     { name = "email-validator" },
     { name = "flask" },
-    { name = "flask-smorest" },
     { name = "psycopg2-binary" },
     { name = "pydantic" },
     { name = "python-dotenv" },
@@ -509,7 +466,6 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.17.0" },
     { name = "email-validator", specifier = ">=2.3.0" },
     { name = "flask", specifier = ">=3.1.2" },
-    { name = "flask-smorest", specifier = ">=0.46.2" },
     { name = "psycopg2-binary", specifier = ">=2.9.11" },
     { name = "pydantic", specifier = ">=2.12.3" },
     { name = "python-dotenv", specifier = ">=1.1.1" },
@@ -901,19 +857,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/24/30/6b0809f4510673dc723187aeaf24c7f5459922d01e2f794277a3dfb90345/wcwidth-0.2.14.tar.gz", hash = "sha256:4d478375d31bc5395a3c55c40ccdf3354688364cd61c4f6adacaa9215d0b3605", size = 102293, upload-time = "2025-09-22T16:29:53.023Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/af/b5/123f13c975e9f27ab9c0770f514345bd406d0e8d3b7a0723af9d43f710af/wcwidth-0.2.14-py2.py3-none-any.whl", hash = "sha256:a7bb560c8aee30f9957e5f9895805edd20602f2d7f720186dfd906e82b4982e1", size = 37286, upload-time = "2025-09-22T16:29:51.641Z" },
-]
-
-[[package]]
-name = "webargs"
-version = "8.7.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "marshmallow" },
-    { name = "packaging" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a8/02/d27619cb81e0e136e27276e8bd48c5ebb38272b0920ce43da0f61c598879/webargs-8.7.0.tar.gz", hash = "sha256:0c617dec19ed4f1ff6b247cd73855e949d87052d71900938b71f0cafd92f191b", size = 96803, upload-time = "2025-04-18T20:56:55.591Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/26/3f/0f68665037bc10d87cf18bcd094a53ad6496ffe44faff721481060fd9149/webargs-8.7.0-py3-none-any.whl", hash = "sha256:4571de9ff5aac98ef528d9cecd7dbc0e05c0e9149e8293a01d1d1398abfcf780", size = 31795, upload-time = "2025-04-18T20:56:53.786Z" },
 ]
 
 [[package]]

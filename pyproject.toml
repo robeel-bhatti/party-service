@@ -11,7 +11,6 @@ dependencies = [
     "redis>=6.4.0",
     "alembic>=1.17.0",
     "psycopg2-binary>=2.9.11",
-    "flask-smorest>=0.46.2",
     "email-validator>=2.3.0",
     "pydantic>=2.12.3",
 ]
