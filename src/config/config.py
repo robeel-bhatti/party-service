@@ -4,7 +4,6 @@ from typing import Optional
 import logging
 
 from flask import Flask
-from flask_smorest import Api
 from pydantic import ValidationError
 from redis import Redis
 from sqlalchemy import QueuePool, create_engine
@@ -35,9 +34,8 @@ def create_app() -> Flask:
     init_exception_handlers(app)
     register_teardown_logic(app)
 
-    api = Api(app)
-    api.register_blueprint(hc_blp)
-    api.register_blueprint(party_blp)
+    app.register_blueprint(party_blp)
+    app.register_blueprint(hc_blp)
 
     return app
 

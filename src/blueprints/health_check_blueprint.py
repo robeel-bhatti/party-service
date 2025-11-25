@@ -1,12 +1,12 @@
 from flask.views import MethodView
-from flask_smorest import Blueprint
-
-hc_blp = Blueprint("health", "health")
+from flask import Blueprint
 
 
-@hc_blp.route("/health-check")
 class HealthCheck(MethodView):
-    @hc_blp.response(200)  # type: ignore
-    def get(self) -> dict[str, str]:
+    def get(self) -> tuple[dict[str, str], int]:
         """Health check endpoint to validate the service is up and running normally."""
-        return {"message": "Party Service is healthy"}
+        return {"message": "Party Service is healthy"}, 200
+
+
+hc_blp = Blueprint("health_blueprint", __name__)
+hc_blp.add_url_rule(rule="/health-check", view_func=HealthCheck.as_view("health_check"))
