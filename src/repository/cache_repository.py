@@ -1,7 +1,7 @@
 from redis import Redis
 import logging
 import json
-from typing import Awaitable, Any
+from typing import Any
 from src.config.constants import AppConstants
 from src.config.enums import ServiceEntities
 
@@ -24,14 +24,18 @@ class CacheRepository:
         bytes_val = json.dumps(value).encode("utf-8")
         self._cache.set(self._generate_key(id, entity), bytes_val, ex=86400)
 
-    def get(self, id: int, entity: ServiceEntities) -> Awaitable[bytes]:
+    def get(self, id: int, entity: ServiceEntities) -> dict[str, Any] | None:
         """
         Get an entity from the cache.
         :param id: The unique identifier (ex. primary key) for the entity.
         :param entity: An enum identifying the entity being stored.
         :return: The attributes of the entity.
         """
-        return self._cache.get(self._generate_key(id, entity))
+        bytes_val = self._cache.get(self._generate_key(id, entity))
+        if bytes_val and isinstance(bytes_val, bytes):
+            decoded: dict[str, Any] = json.loads(bytes_val.decode("utf-8"))
+            return decoded
+        return None
 
     @staticmethod
     def _generate_key(id: int, entity: ServiceEntities) -> str:
