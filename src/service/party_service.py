@@ -21,6 +21,10 @@ class PartyService:
         self._cache_repository = cache_repository
 
     def get_party(self, party_id: int) -> dict[str, Any]:
+        """Get a party entity by ID.
+
+        This method uses the Cache-Aside caching strategy.
+        """
         party_response = self._get_party_from_cache(party_id)
         if party_response:
             return party_response
