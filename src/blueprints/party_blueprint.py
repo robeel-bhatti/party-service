@@ -20,12 +20,12 @@ class PartyListView(PartyBaseView):
 
 
 class PartyDetailView(PartyBaseView):
-    def get(self, id: int) -> tuple[dict[str, Any], int]:
+    def get(self, party_id: int) -> tuple[dict[str, Any], int]:
         """Handles REST request to retrieve an existing party by ID."""
         logger.info(
-            f"GET /parties endpoint received request to retrieve Party with ID {id}."
+            f"GET /parties endpoint received request to retrieve Party with ID {party_id}."
         )
-        return self._party_service.get_party(id), 200
+        return self._party_service.get_party(party_id), 200
 
 
 party_blp = Blueprint("party_blueprint", __name__, url_prefix="/api")
@@ -33,5 +33,5 @@ party_blp.add_url_rule(
     "/v1/parties", view_func=PartyListView.as_view("party_list_view")
 )
 party_blp.add_url_rule(
-    "/v1/parties/<int:id>", view_func=PartyDetailView.as_view("party_detail_view")
+    "/v1/parties/<int:party_id>", view_func=PartyDetailView.as_view("party_detail_view")
 )
