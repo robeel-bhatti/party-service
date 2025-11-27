@@ -89,7 +89,7 @@ def test_add_party_cache_failure(
 
     mock_logger.warning.assert_called_once()
     warning_message = mock_logger.warning.call_args[0][0]
-    assert "Error caching Party" in warning_message
+    assert "Could not write Party with ID" in warning_message
     assert str(party_fixture.id) in warning_message
 
 

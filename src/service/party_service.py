@@ -20,6 +20,20 @@ class PartyService:
         self._uow = unit_of_work
         self._cache_repository = cache_repository
 
+    def get_party(self, party_id: int) -> dict[str, Any]:
+        """Get a party entity by ID.
+
+        This method uses the Cache-Aside caching strategy.
+        """
+        party_response = self._get_party_from_cache(party_id)
+        if party_response:
+            return party_response
+
+        party = self._get_party_by_id(party_id)
+        party_response = mappers.to_party_response(party).to_dict()
+        self._write_to_cache(party_id, party_response)
+        return party_response
+
     def add_party(self, req: dict[str, Any]) -> dict[str, Any]:
         """Create a new party.
 
@@ -44,37 +58,62 @@ class PartyService:
 
             party_history = mappers.to_party_history(party, address)
             self._create_party_history(party_history)
-            party_response = mappers.to_party_response(party, address).to_dict()
+            party_response = mappers.to_party_response(party).to_dict()
 
-        try:
-            self._cache_repository.add(party.id, ServiceEntities.PARTY, party_response)
-            logger.debug(f"Party with ID {party.id} saved in cache.")
-        except RedisError as e:
-            logger.warning(f"Error caching Party with ID {party.id}: {e}")
-
+        self._write_to_cache(party.id, party_response)
         logger.info(f"Party with ID {party.id} successfully created.")
         return party_response
 
     def _create_party(self, party: Party) -> Party:
-        logger.debug("Inserting new party into database.")
+        logger.debug("Inserting new Party into database.")
         self._uow.party_repository.add(party)
         self._uow.flush()
         return party
 
     def _create_address(self, address: Address) -> Address:
-        logger.debug("Inserting new address into database.")
+        logger.debug("Inserting new Address into database.")
         self._uow.address_repository.add(address)
         self._uow.flush()
         return address
 
     def _create_party_history(self, party_history: PartyHistory) -> PartyHistory:
         logger.debug(
-            f"Inserting new party history for Party {party_history.party_id} into database."
+            f"Inserting new Party History for Party {party_history.party_id} into database."
         )
         self._uow.party_history_repository.add(party_history)
         self._uow.flush()
         return party_history
 
     def _get_address_by_hash(self, address_hash: str) -> Address | None:
-        logger.debug(f"Getting address from hash: {address_hash}")
+        logger.debug(f"Getting Address with hash: {address_hash} from database.")
         return self._uow.address_repository.get_by_hash(address_hash)
+
+    def _get_party_by_id(self, party_id: int) -> Party:
+        logger.debug(f"Getting Party with ID: {party_id} from database.")
+        return self._uow.party_repository.get_by_id(party_id)
+
+    def _get_party_from_cache(self, party_id: int) -> dict[str, Any] | None:
+        logger.debug(f"Getting Party with ID: {party_id} from cache.")
+        try:
+            cached = self._cache_repository.get(party_id, ServiceEntities.PARTY)
+            if cached:
+                logger.debug(f"Cache hit for Party with ID {party_id}.")
+                return cached
+
+            logger.debug(f"Cache miss for Party with ID {party_id}.")
+            return None
+
+        except RedisError as e:
+            logger.warning(
+                f"Could not get Party with ID {party_id} due to Redis Error: {e}"
+            )
+            return None
+
+    def _write_to_cache(self, party_id: int, res: dict[str, Any]) -> None:
+        logger.debug(f"Writing Party with ID: {party_id} into cache.")
+        try:
+            self._cache_repository.add(party_id, ServiceEntities.PARTY, res)
+        except RedisError as e:
+            logger.warning(
+                f"Could not write Party with ID {party_id} to cache due to Redis Error: {e}."
+            )

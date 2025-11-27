@@ -78,7 +78,7 @@ def to_address_response(address: Address) -> AddressResponse:
     )
 
 
-def to_party_response(party: Party, address: Address) -> PartyResponse:
+def to_party_response(party: Party) -> PartyResponse:
     return PartyResponse(
         id=party.id,
         first_name=party.first_name,
@@ -86,6 +86,6 @@ def to_party_response(party: Party, address: Address) -> PartyResponse:
         last_name=party.last_name,
         email=party.email,
         phone_number=party.phone_number,
-        address=to_address_response(address),
+        address=to_address_response(party.address),
         meta=to_meta_response(party),
     )
