@@ -1,91 +1,108 @@
-import hashlib
-
 from datetime import datetime
-from typing import Optional, Self, Annotated
+from typing import Annotated
 from pydantic import BaseModel, ConfigDict, EmailStr
 from pydantic.alias_generators import to_camel
-from pydantic import Field, model_validator
+from pydantic import Field, AfterValidator
 from src.util.enums import USState
 
+
+def postal_code_validator(postal_code: str) -> str | None:
+    return postal_code.strip() if postal_code else None
+
+
+def street_city_validator(value: str) -> str | None:
+    return value.strip().title() if value else None
+
+
+def country_validator(country: str) -> str | None:
+    return country.strip().upper() if country else None
+
+
+def state_validator(state: str) -> str | None:
+    if state is None:
+        return None
+    new_state = state.strip().upper()
+    try:
+        USState(new_state)
+    except ValueError:
+        raise ValueError(
+            f"Failed to create Party. An invalid US state code: '{state}' was provided."
+        )
+    return new_state
+
+
 # Custom types to be reused against fields belonging in multiple pydantic models.
-GeneralStringConstraint = Annotated[
+GeneralStringType = Annotated[
     str, Field(min_length=1, max_length=100, pattern=r"^[a-zA-Z0-9\s\-\.']+$")
 ]
 PhoneType = Annotated[str, Field(min_length=10, max_length=10, pattern=r"^[1-9]\d{9}$")]
+GeneralAddressType = Annotated[
+    str,
+    Field(min_length=1, max_length=100, pattern=r"^[a-zA-Z0-9\s\-\.']+$"),
+    AfterValidator(street_city_validator),
+]
+StateType = Annotated[
+    str, Field(min_length=2, max_length=2), AfterValidator(state_validator)
+]
 PostalType = Annotated[
-    str, Field(min_length=1, max_length=10, pattern=r"^\d{5}(-\d{4})?$")
+    str,
+    Field(min_length=1, max_length=10, pattern=r"^\d{5}(-\d{4})?$"),
+    AfterValidator(postal_code_validator),
+]
+CountryType = Annotated[
+    str, Field(min_length=3, max_length=3), AfterValidator(country_validator)
 ]
 
 
-class MetaRequest(BaseModel):
-    """Validates the metadata information in the request payload."""
-
+class CustomBaseModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel)
-    created_by: GeneralStringConstraint
+
+
+class MetaCreate(CustomBaseModel):
+    created_by: GeneralStringType
     created_at: datetime
 
 
-class AddressRequest(BaseModel):
-    """Validates the address information portion of the request payload"""
+class MetaUpdate(CustomBaseModel):
+    updated_by: GeneralStringType
+    updated_at: datetime
 
-    model_config = ConfigDict(alias_generator=to_camel)
 
-    street_one: GeneralStringConstraint
-    street_two: Optional[GeneralStringConstraint] = None
-    city: GeneralStringConstraint
-    state: str = Field(min_length=2, max_length=2)
+class AddressCreate(CustomBaseModel):
+    street_one: GeneralAddressType
+    street_two: GeneralAddressType | None = None
+    city: GeneralAddressType
+    state: StateType
     postal_code: PostalType
-    country: str = Field(min_length=3, max_length=3)
-    meta: MetaRequest
-
-    @model_validator(mode="after")
-    def parse_state(self) -> Self:
-        try:
-            USState(self.state.upper())
-        except ValueError:
-            raise ValueError(
-                f"Failed to create Party. An invalid US state code: '{self.state}' was provided."
-            )
-        return self
-
-    @model_validator(mode="after")
-    def normalize_fields(self) -> Self:
-        for name in AddressRequest.model_fields.keys():
-            val = getattr(self, name)
-            if val and name != "meta":
-                val = val.strip()
-                if name == "state" or name == "country":
-                    val = val.upper()
-                elif name == "city":
-                    val = val.capitalize()
-                elif name == "street_one" or name == "street_two":
-                    val = val.title()
-
-            setattr(self, name, val)
-
-        return self
-
-    def get_hash(self) -> str:
-        """Normalize address components, then get a deterministic hash."""
-        normalized_string = (
-            f"{self.street_one}"
-            f"|{self.street_two if self.street_two else ''}"
-            f"|{self.city}"
-            f"|{self.state}"
-            f"|{self.postal_code}"
-            f"|{self.country}"
-        )
-        return hashlib.sha256(normalized_string.encode()).hexdigest()
+    country: CountryType
+    meta: MetaCreate
 
 
-class PartyRequest(BaseModel):
-    """Validates the personal information portion of the request payload"""
+class AddressUpdate(CustomBaseModel):
+    street_one: GeneralAddressType | None = None
+    street_two: GeneralAddressType | None = None
+    city: GeneralAddressType | None = None
+    state: StateType | None = None
+    postal_code: PostalType | None = None
+    country: CountryType | None = None
+    meta: MetaUpdate
 
-    model_config = ConfigDict(alias_generator=to_camel)
-    first_name: GeneralStringConstraint
-    middle_name: Optional[GeneralStringConstraint] = None
-    last_name: GeneralStringConstraint
+
+class PartyCreate(CustomBaseModel):
+    first_name: GeneralStringType
+    middle_name: GeneralStringType | None = None
+    last_name: GeneralStringType
     email: EmailStr
     phone_number: PhoneType
-    address: AddressRequest
-    meta: MetaRequest
+    address: AddressCreate
+    meta: MetaCreate
+
+
+class PartyUpdate(CustomBaseModel):
+    first_name: GeneralStringType | None = None
+    middle_name: GeneralStringType | None = None
+    last_name: GeneralStringType | None = None
+    email: EmailStr | None = None
+    phone_number: PhoneType | None = None
+    address: AddressUpdate | None = None
+    meta: MetaUpdate
