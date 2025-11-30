@@ -11,11 +11,8 @@ servers:
   - url: https://localhost:8080
     description: Dev server
 
-security:
-  - bearerAuth: []
-
 paths:
-  /parties/{id}:
+  /api/v1/parties/{id}:
     get:
       tags: [Party]
       summary: Get a party by ID
@@ -34,18 +31,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PartyResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenError'
         '404':
           description: Party not found
           content:
@@ -83,18 +68,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequestError'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenError'
         '404':
           description: Party not found
           content:
@@ -108,7 +81,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UnprocessableError'
 
-  /parties:
+  /api/v1/parties:
     post:
       tags: [Party]
       summary: Create a new party
@@ -132,18 +105,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequestError'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedError'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenError'
         '422':
           description: Unprocessable entity (validation failed)
           content:
@@ -152,17 +113,8 @@ paths:
                 $ref: '#/components/schemas/UnprocessableError'
 
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: >
-        JWT-based authentication using Bearer tokens.
-        Include your token in the Authorization header like:
-        `Authorization: Bearer <token>`
-
   schemas:
+    # --- Create Schemas ---
     PartyCreate:
       type: object
       properties:
@@ -201,55 +153,21 @@ components:
           example: "555-123-4567"
           description: "US phone number in format xxx-xxx-xxxx"
         address:
-          $ref: '#/components/schemas/AddressRequest'
+          $ref: '#/components/schemas/AddressCreate'
+        meta:
+          $ref: '#/components/schemas/MetaCreate'
       required:
         - firstName
         - lastName
         - address
-      anyOf:
-        - required: ["email"]
-        - required: ["phoneNumber"]
+        - email
+        - phoneNumber
+        - meta
       description: >
         All fields are required except for middleName.
         At least one of `email` or `phoneNumber` must be provided.
 
-    PartyUpdate:
-      type: object
-      properties:
-        firstName:
-          type: string
-          minLength: 1
-          maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
-          description: "First name (letters, spaces, hyphens, periods, and apostrophes only)"
-        middleName:
-          type: string
-          minLength: 1
-          maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
-          description: "Middle name or initial (letters, spaces, hyphens, periods, and apostrophes only)"
-        lastName:
-          type: string
-          minLength: 1
-          maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
-          description: "Last name (letters, spaces, hyphens, periods, and apostrophes only)"
-        email:
-          type: string
-          format: email
-          minLength: 3
-          maxLength: 254
-          pattern: '^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$'
-          description: "Valid email address"
-        phoneNumber:
-          type: string
-          pattern: '^\d{3}-\d{3}-\d{4}$'
-          example: "555-123-4567"
-          description: "US phone number in format xxx-xxx-xxxx"
-        address:
-          $ref: '#/components/schemas/AddressRequest'
-
-    AddressRequest:
+    AddressCreate:
       type: object
       properties:
         streetOne:
@@ -292,13 +210,138 @@ components:
           pattern: '^[A-Z]{2}$'
           example: "US"
           description: "ISO 3166-1 alpha-2 country code (uppercase)"
+        meta:
+          $ref: '#/components/schemas/MetaCreate'
       required:
         - streetOne
         - city
         - state
         - zip
         - countryCode
+        - meta
 
+    MetaCreate:
+      type: object
+      properties:
+        createdBy:
+          type: string
+          minLength: 1
+          example: "user@example.com"
+          description: "Identifier of the user creating the resource"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+          description: "Timestamp when the resource is created"
+      required:
+        - createdBy
+        - createdAt
+
+    # --- Update Schemas ---
+    PartyUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
+          description: "First name (letters, spaces, hyphens, periods, and apostrophes only)"
+        middleName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
+          description: "Middle name or initial (letters, spaces, hyphens, periods, and apostrophes only)"
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
+          description: "Last name (letters, spaces, hyphens, periods, and apostrophes only)"
+        email:
+          type: string
+          format: email
+          minLength: 3
+          maxLength: 254
+          pattern: '^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$'
+          description: "Valid email address"
+        phoneNumber:
+          type: string
+          pattern: '^\d{3}-\d{3}-\d{4}$'
+          example: "555-123-4567"
+          description: "US phone number in format xxx-xxx-xxxx"
+        address:
+          $ref: '#/components/schemas/AddressUpdate'
+        meta:
+          $ref: '#/components/schemas/MetaUpdate'
+      description: "All fields are optional for updates. Only provided fields will be updated."
+
+    AddressUpdate:
+      type: object
+      properties:
+        streetOne:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: "123 Main St"
+          description: "Primary street address"
+        streetTwo:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: "Apt 4B"
+          description: "Secondary address line (apartment, suite, etc.)"
+        city:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z\s\-\.'']+$'
+          example: "Springfield"
+          description: "City name (letters, spaces, hyphens, periods, and apostrophes only)"
+        state:
+          type: string
+          minLength: 2
+          maxLength: 2
+          pattern: '^[A-Za-z]{2}$'
+          example: "IL"
+          description: "US state code (two letters, case insensitive)"
+        zip:
+          type: string
+          minLength: 3
+          maxLength: 10
+          pattern: '^[a-zA-Z0-9\s\-]+$'
+          example: "62704"
+          description: "Postal/ZIP code (alphanumeric, spaces, and hyphens allowed)"
+        countryCode:
+          type: string
+          minLength: 2
+          maxLength: 2
+          pattern: '^[A-Z]{2}$'
+          example: "US"
+          description: "ISO 3166-1 alpha-2 country code (uppercase)"
+        meta:
+          $ref: '#/components/schemas/MetaUpdate'
+      description: "All fields are optional. Only provided fields will be updated."
+
+    MetaUpdate:
+      type: object
+      properties:
+        updatedBy:
+          type: string
+          minLength: 1
+          example: "user@example.com"
+          description: "Identifier of the user updating the resource"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T15:45:00Z"
+          description: "Timestamp when the resource is updated"
+      required:
+        - updatedBy
+        - updatedAt
+
+    # --- Response Schemas ---
     PartyResponse:
       type: object
       properties:
@@ -323,10 +366,72 @@ components:
           example: "555-123-4567"
         address:
           $ref: '#/components/schemas/AddressResponse'
+        meta:
+          $ref: '#/components/schemas/MetaResponse'
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - phoneNumber
+        - address
+        - meta
 
     AddressResponse:
-      allOf:
-        - $ref: '#/components/schemas/AddressRequest'
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 456
+        streetOne:
+          type: string
+          example: "123 Main St"
+        streetTwo:
+          type: string
+          example: "Apt 4B"
+        city:
+          type: string
+          example: "Springfield"
+        state:
+          type: string
+          example: "IL"
+        zip:
+          type: string
+          example: "62704"
+        countryCode:
+          type: string
+          example: "US"
+        meta:
+          $ref: '#/components/schemas/MetaResponse'
+      required:
+        - id
+        - streetOne
+        - city
+        - state
+        - zip
+        - countryCode
+        - meta
+
+    MetaResponse:
+      type: object
+      properties:
+        createdBy:
+          type: string
+          example: "user@example.com"
+        updatedBy:
+          type: string
+          example: "admin@example.com"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T15:45:00Z"
+      required:
+        - createdBy
+        - createdAt
 
     # --- Error Schemas ---
     ErrorBase:
@@ -359,16 +464,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/ErrorBase'
       description: The request is well-formed but contains invalid data.
-
-    UnauthorizedError:
-      allOf:
-        - $ref: '#/components/schemas/ErrorBase'
-      description: The request is not authenticated.
-
-    ForbiddenError:
-      allOf:
-        - $ref: '#/components/schemas/ErrorBase'
-      description: The request is authenticated but not authorized.
 
     NotFoundError:
       allOf:
