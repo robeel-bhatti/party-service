@@ -9,7 +9,12 @@ def make_json_serializable(data: list[tuple[str, Any]]) -> dict[str, Any]:
             return value.isoformat()
         return value
 
-    return {k: convert_value(v) for k, v in data}
+    def to_camel_case(snake_str: str) -> str:
+        """Convert snake_case string to camelCase."""
+        components = snake_str.split("_")
+        return components[0] + "".join(word.capitalize() for word in components[1:])
+
+    return {to_camel_case(k): convert_value(v) for k, v in data}
 
 
 @dataclass

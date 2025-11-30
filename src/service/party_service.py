@@ -1,4 +1,7 @@
 from typing import Any
+
+from redis import RedisError
+
 from src.config.enums import ServiceEntities
 from src.repository.cache_repository import CacheRepository
 from src.dto.request_dtos import PartyRequest
@@ -8,7 +11,6 @@ from src.models.party import Party
 from src.models.party_history import PartyHistory
 from src.repository.unit_of_work import UnitOfWork
 import logging
-from redis.exceptions import RedisError
 
 logger = logging.getLogger(__name__)
 
@@ -21,20 +23,13 @@ class PartyService:
         self._cache_repository = cache_repository
 
     def get_party(self, party_id: int) -> dict[str, Any]:
-        """Get a party entity by ID.
-
-        This method uses the Cache-Aside caching strategy.
-        """
-        party_response = self._get_party_from_cache(party_id)
-        if party_response:
-            return party_response
-
+        """Get a party entity by ID and write the entity to the cache."""
         party = self._get_party_by_id(party_id)
         party_response = mappers.to_party_response(party).to_dict()
-        self._write_to_cache(party_id, party_response)
+        self._write_to_cache(party.id, party_response)
         return party_response
 
-    def add_party(self, req: dict[str, Any]) -> dict[str, Any]:
+    def add_party(self, party_request: PartyRequest) -> dict[str, Any]:
         """Create a new party.
 
         One key piece of business logic is ensuring addresses stay unique.
@@ -44,7 +39,6 @@ class PartyService:
 
         Every party creation transaction is atomic.
         """
-        party_request = PartyRequest(**req)
         with self._uow:
             address = self._get_address_by_hash(party_request.address.get_hash())
             if address is None:
@@ -91,23 +85,6 @@ class PartyService:
     def _get_party_by_id(self, party_id: int) -> Party:
         logger.debug(f"Getting Party with ID: {party_id} from database.")
         return self._uow.party_repository.get_by_id(party_id)
-
-    def _get_party_from_cache(self, party_id: int) -> dict[str, Any] | None:
-        logger.debug(f"Getting Party with ID: {party_id} from cache.")
-        try:
-            cached = self._cache_repository.get(party_id, ServiceEntities.PARTY)
-            if cached:
-                logger.debug(f"Cache hit for Party with ID {party_id}.")
-                return cached
-
-            logger.debug(f"Cache miss for Party with ID {party_id}.")
-            return None
-
-        except RedisError as e:
-            logger.warning(
-                f"Could not get Party with ID {party_id} due to Redis Error: {e}"
-            )
-            return None
 
     def _write_to_cache(self, party_id: int, res: dict[str, Any]) -> None:
         logger.debug(f"Writing Party with ID: {party_id} into cache.")
