@@ -2,8 +2,8 @@ from redis import Redis
 import logging
 import json
 from typing import Any
-from src.config.constants import AppConstants
-from src.config.enums import ServiceEntities
+from src.util.constants import AppConstants
+from src.util.enums import ServiceEntities
 
 logger = logging.getLogger(__name__)
 

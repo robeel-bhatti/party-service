@@ -27,22 +27,22 @@ def test_to_dict_structure(party_response):
     result = party_response.to_dict()
     assert isinstance(result, dict)
     assert result["id"] == 1
-    assert result["first_name"] == "John"
-    assert result["middle_name"] == "A."
-    assert result["last_name"] == "Doe"
+    assert result["firstName"] == "John"
+    assert result["middleName"] == "A."
+    assert result["lastName"] == "Doe"
     assert result["email"] == "john.doe@example.com"
-    assert result["phone_number"] == "5551234567"
+    assert result["phoneNumber"] == "5551234567"
 
     # Check nested address
     assert "address" in result
     assert isinstance(result["address"], dict)
     assert result["address"]["id"] == 1
-    assert result["address"]["street_one"] == "123 Main St"
+    assert result["address"]["streetOne"] == "123 Main St"
 
     # Check nested meta in party
     assert "meta" in result
     assert isinstance(result["meta"], dict)
-    assert result["meta"]["created_by"] == "test.user"
-    assert result["meta"]["created_at"] == "2025-01-01T12:00:00"
-    assert result["meta"]["updated_by"] == "test.user"
-    assert result["meta"]["updated_at"] == "2025-01-01T12:00:00"
+    assert result["meta"]["createdBy"] == "test.user"
+    assert result["meta"]["createdAt"] == "2025-01-01T12:00:00"
+    assert result["meta"]["updatedBy"] == "test.user"
+    assert result["meta"]["updatedAt"] == "2025-01-01T12:00:00"
