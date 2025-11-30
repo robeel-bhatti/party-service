@@ -1,4 +1,4 @@
-from src.mapper import mappers
+from src.util import mappers
 from src.dto.request_dtos import PartyRequest
 from src.models.party import Party
 from src.models.address import Address

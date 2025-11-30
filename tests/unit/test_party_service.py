@@ -1,6 +1,6 @@
 import pytest
 from redis.exceptions import RedisError
-from src.config.enums import ServiceEntities
+from src.util.enums import ServiceEntities
 
 
 def test_add_party_with_new_address(

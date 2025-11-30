@@ -5,7 +5,7 @@ from typing import Optional, Self, Annotated
 from pydantic import BaseModel, ConfigDict, EmailStr
 from pydantic.alias_generators import to_camel
 from pydantic import Field, model_validator
-from src.config.enums import USState
+from src.util.enums import USState
 
 # Custom types to be reused against fields belonging in multiple pydantic models.
 GeneralStringConstraint = Annotated[

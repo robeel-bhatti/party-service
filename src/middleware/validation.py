@@ -3,11 +3,11 @@ from typing import Type, TypeVar, Callable, Any
 from flask import request
 from pydantic import BaseModel
 import logging
+from src.util.custom_types import PartyResponseTuple
 
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=BaseModel)
-PartyResponseTuple = tuple[dict[str, Any], int]
 
 
 def validate_request(

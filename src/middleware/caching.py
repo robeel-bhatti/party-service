@@ -2,12 +2,11 @@ from functools import wraps
 from typing import Callable, Any
 import logging
 from redis import RedisError
-from src.config.enums import ServiceEntities
+from src.util.enums import ServiceEntities
 from flask.globals import current_app
+from src.util.custom_types import PartyResponseTuple
 
 logger = logging.getLogger(__name__)
-
-PartyResponseTuple = tuple[dict[str, Any], int]
 
 
 def cache_read(
@@ -15,6 +14,8 @@ def cache_read(
 ) -> Callable[
     [Callable[[Any, int], PartyResponseTuple]], Callable[[Any, int], PartyResponseTuple]
 ]:
+    """Returns a decorator that checks the cache for an entity via the provided ID."""
+
     def decorator(
         func: Callable[[Any, int], PartyResponseTuple],
     ) -> Callable[[Any, int], PartyResponseTuple]:

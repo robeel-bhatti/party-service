@@ -2,10 +2,10 @@ from typing import Any
 
 from redis import RedisError
 
-from src.config.enums import ServiceEntities
+from src.util.enums import ServiceEntities
 from src.repository.cache_repository import CacheRepository
 from src.dto.request_dtos import PartyRequest
-from src.mapper import mappers
+from src.util import mappers
 from src.models.address import Address
 from src.models.party import Party
 from src.models.party_history import PartyHistory

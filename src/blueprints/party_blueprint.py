@@ -1,13 +1,13 @@
-from typing import Any
 import logging
 
 from flask import current_app, Blueprint
 from flask.views import MethodView
 
-from src.config.enums import ServiceEntities
+from src.util.enums import ServiceEntities
 from src.dto.request_dtos import PartyRequest
 from src.middleware.validation import validate_request
 from src.middleware.caching import cache_read
+from src.util.custom_types import PartyResponseTuple
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class PartyBaseView(MethodView):
 
 class PartyListView(PartyBaseView):
     @validate_request(PartyRequest)
-    def post(self, party_request: PartyRequest) -> tuple[dict[str, Any], int]:
+    def post(self, party_request: PartyRequest) -> PartyResponseTuple:
         """Handles REST requests to create a new party."""
         logger.info("POST /parties endpoint received request to create Party.")
         return self._party_service.add_party(party_request), 201
@@ -27,7 +27,7 @@ class PartyListView(PartyBaseView):
 
 class PartyDetailView(PartyBaseView):
     @cache_read(ServiceEntities.PARTY)
-    def get(self, id: int) -> tuple[dict[str, Any], int]:
+    def get(self, id: int) -> PartyResponseTuple:
         """Handles REST request to retrieve an existing party by ID."""
         logger.info(
             f"GET /parties endpoint received request to retrieve Party with ID {id}."
