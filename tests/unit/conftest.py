@@ -4,6 +4,7 @@ from src.dto.response_dtos import PartyResponse, AddressResponse, MetaResponse
 import pytest
 from src.service.party_service import PartyService
 from src.models import Party, Address, PartyHistory
+from src.dto.request_dtos import PartyRequest
 
 
 @dataclass
@@ -52,6 +53,11 @@ def default_meta_data() -> TestMeta:
 @pytest.fixture
 def post_payload(default_party_data) -> dict:
     return asdict(default_party_data)
+
+
+@pytest.fixture
+def party_request(post_payload):
+    return PartyRequest(**post_payload)
 
 
 @pytest.fixture
