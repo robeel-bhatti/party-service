@@ -15,7 +15,7 @@ security:
   - bearerAuth: []
 
 paths:
-  /parties/{id}:
+  /api/v1/parties/{id}:
     get:
       tags: [Party]
       summary: Get a party by ID
@@ -108,7 +108,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UnprocessableError'
 
-  /parties:
+  /api/v1/parties:
     post:
       tags: [Party]
       summary: Create a new party
@@ -152,16 +152,6 @@ paths:
                 $ref: '#/components/schemas/UnprocessableError'
 
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: >
-        JWT-based authentication using Bearer tokens.
-        Include your token in the Authorization header like:
-        `Authorization: Bearer <token>`
-
   schemas:
     PartyCreate:
       type: object
@@ -202,13 +192,14 @@ components:
           description: "US phone number in format xxx-xxx-xxxx"
         address:
           $ref: '#/components/schemas/AddressRequest'
+        meta:
+          $ref: '#/components/schemas/MetaCreate'
       required:
         - firstName
         - lastName
         - address
-      anyOf:
-        - required: ["email"]
-        - required: ["phoneNumber"]
+        - email
+        - phoneNumber
       description: >
         All fields are required except for middleName.
         At least one of `email` or `phoneNumber` must be provided.
@@ -246,8 +237,28 @@ components:
           pattern: '^\d{3}-\d{3}-\d{4}$'
           example: "555-123-4567"
           description: "US phone number in format xxx-xxx-xxxx"
+        meta:
+          $ref: '#/components/schemas/MetaUpdate'
         address:
           $ref: '#/components/schemas/AddressRequest'
+
+    MetaCreate:
+      type: object
+      properties:
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    MetaUpdate:
+      type: object
+      properties:
+        updatedBy:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
 
     AddressRequest:
       type: object
@@ -292,12 +303,17 @@ components:
           pattern: '^[A-Z]{2}$'
           example: "US"
           description: "ISO 3166-1 alpha-2 country code (uppercase)"
+        meta:
+          oneOf:
+            - $ref: '#/components/schemas/MetaCreate'
+            - $ref: '#/components/schemas/MetaUpdate'
       required:
         - streetOne
         - city
         - state
         - zip
         - countryCode
+        - meta
 
     PartyResponse:
       type: object
@@ -323,10 +339,30 @@ components:
           example: "555-123-4567"
         address:
           $ref: '#/components/schemas/AddressResponse'
+        meta:
+          $ref: '#/components/schemas/MetaResponse'
 
     AddressResponse:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/MetaResponse'
       allOf:
         - $ref: '#/components/schemas/AddressRequest'
+
+    MetaResponse:
+      type: object
+      properties:
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
     # --- Error Schemas ---
     ErrorBase:
