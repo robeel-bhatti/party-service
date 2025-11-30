@@ -6,7 +6,8 @@ from flask.views import MethodView
 
 from src.config.enums import ServiceEntities
 from src.dto.request_dtos import PartyRequest
-from src.util.middleware import validate_request, cache_read
+from src.middleware.validation import validate_request
+from src.middleware.caching import cache_read
 
 logger = logging.getLogger(__name__)
 
