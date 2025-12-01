@@ -1,4 +1,4 @@
-from src.dto.request_dtos import PartyCreate
+from src.dto.request_dtos import PartyCreate, AddressCreate
 from src.models.address import Address
 from src.models.party import Party
 from src.models.party_history import PartyHistory
@@ -18,18 +18,18 @@ def to_party(party_request: PartyCreate) -> Party:
     )
 
 
-# def to_address(address_request: AddressCreate) -> Address:
-#     return Address(
-#         street_one=address_request.street_one,
-#         street_two=address_request.street_two,
-#         city=address_request.city,
-#         state=address_request.state,
-#         postal_code=address_request.postal_code,
-#         country=address_request.country,
-#         hash=address_request.get_hash(),
-#         created_by=address_request.meta.created_by,
-#         updated_by=address_request.meta.created_by,
-#     )
+def to_address(address_request: AddressCreate) -> Address:
+    return Address(
+        street_one=address_request.street_one,
+        street_two=address_request.street_two,
+        city=address_request.city,
+        state=address_request.state,
+        postal_code=address_request.postal_code,
+        country=address_request.country,
+        hash=address_request.get_hash(),
+        created_by=address_request.meta.created_by,
+        updated_by=address_request.meta.created_by,
+    )
 
 
 def to_party_history(party: Party, address: Address) -> PartyHistory:

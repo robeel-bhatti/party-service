@@ -4,7 +4,7 @@ from redis import RedisError
 
 from src.util.enums import ServiceEntities
 from src.repository.cache_repository import CacheRepository
-from src.dto.request_dtos import PartyRequest
+from src.dto.request_dtos import PartyCreate
 from src.util import mappers
 from src.models.address import Address
 from src.models.party import Party
@@ -29,7 +29,7 @@ class PartyService:
         self._write_to_cache(party.id, party_response)
         return party_response
 
-    def add_party(self, party_request: PartyRequest) -> dict[str, Any]:
+    def add_party(self, party_request: PartyCreate) -> dict[str, Any]:
         """Create a new party.
 
         One key piece of business logic is ensuring addresses stay unique.
