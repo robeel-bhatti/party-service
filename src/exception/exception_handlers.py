@@ -2,7 +2,7 @@ import logging
 from http import HTTPStatus
 
 from flask import Response, jsonify, request
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 from pydantic import ValidationError
 
 from src.exception.error_dto import ErrorDTO
@@ -43,3 +43,17 @@ def handle_database_error(e: SQLAlchemyError) -> tuple[Response, int]:
     ).to_dict()
 
     return jsonify(error_dto), 500
+
+
+def handle_not_found_error(e: NoResultFound) -> tuple[Response, int]:
+    """Handles errors when the entity was not found and one was expected to be there."""
+    party_id = request.view_args["id"]
+    logger.exception(f"Could not find Party with ID: {party_id} in database: {e}")
+    error_dto = ErrorDTO(
+        status=HTTPStatus.NOT_FOUND.value,
+        title=HTTPStatus.NOT_FOUND.phrase,
+        detail=f"Party {party_id} was not found.",
+        instance=request.path,
+    ).to_dict()
+
+    return jsonify(error_dto), 404
