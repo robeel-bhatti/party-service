@@ -4,7 +4,7 @@ from flask import current_app, Blueprint
 from flask.views import MethodView
 
 from src.util.enums import ServiceEntities
-from src.dto.request_dtos import PartyCreate
+from src.dto.request_dtos import PartyCreate, PartyUpdate
 from src.middleware.validation import validate_request
 from src.middleware.caching import cache_read
 from src.util.custom_types import PartyResponseTuple
@@ -33,6 +33,13 @@ class PartyDetailView(PartyBaseView):
             f"GET /parties endpoint received request to retrieve Party with ID {id}."
         )
         return self._party_service.get_party(id), 200
+
+    def patch(self, id: int, party_request: PartyUpdate) -> PartyResponseTuple:
+        """Handles REST requests to update an existing party by ID."""
+        logger.info(
+            f"PATCH /parties endpoint received request to update Party with ID {id}."
+        )
+        return self._party_service.update_party(id, party_request), 200
 
 
 party_blp = Blueprint("party_blueprint", __name__, url_prefix="/api")
