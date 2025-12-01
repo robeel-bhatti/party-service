@@ -4,7 +4,7 @@ from flask import current_app, Blueprint
 from flask.views import MethodView
 
 from src.util.enums import ServiceEntities
-from src.dto.request_dtos import PartyRequest
+from src.dto.request_dtos import PartyCreate
 from src.middleware.validation import validate_request
 from src.middleware.caching import cache_read
 from src.util.custom_types import PartyResponseTuple
@@ -18,8 +18,8 @@ class PartyBaseView(MethodView):
 
 
 class PartyListView(PartyBaseView):
-    @validate_request(PartyRequest)
-    def post(self, party_request: PartyRequest) -> PartyResponseTuple:
+    @validate_request(PartyCreate)
+    def post(self, party_request: PartyCreate) -> PartyResponseTuple:
         """Handles REST requests to create a new party."""
         logger.info("POST /parties endpoint received request to create Party.")
         return self._party_service.add_party(party_request), 201
