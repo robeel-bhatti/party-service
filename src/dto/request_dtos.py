@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Protocol
 from pydantic import BaseModel, ConfigDict, EmailStr
 from pydantic.alias_generators import to_camel
 from pydantic import Field, AfterValidator
 from src.util.enums import USState
+import hashlib
 
 
 def postal_code_validator(postal_code: str) -> str | None:
@@ -68,7 +69,30 @@ class MetaUpdate(CustomBaseModel):
     updated_at: datetime
 
 
-class AddressCreate(CustomBaseModel):
+class AddressProtocol(Protocol):
+    street_one: str
+    street_two: str | None
+    city: str
+    state: str
+    postal_code: str
+    country: str
+
+
+class AddressHashMixin:
+    def get_hash(self: AddressProtocol) -> str:
+        """Normalize address components, then get a deterministic hash."""
+        normalized_string = (
+            f"{self.street_one}"
+            f"|{self.street_two if self.street_two else ''}"
+            f"|{self.city}"
+            f"|{self.state}"
+            f"|{self.postal_code}"
+            f"|{self.country}"
+        )
+        return hashlib.sha256(normalized_string.encode()).hexdigest()
+
+
+class AddressCreate(CustomBaseModel, AddressHashMixin):
     street_one: GeneralAddressType
     street_two: GeneralAddressType | None = None
     city: GeneralAddressType
@@ -78,7 +102,7 @@ class AddressCreate(CustomBaseModel):
     meta: MetaCreate
 
 
-class AddressUpdate(CustomBaseModel):
+class AddressUpdate(CustomBaseModel, AddressHashMixin):
     street_one: GeneralAddressType | None = None
     street_two: GeneralAddressType | None = None
     city: GeneralAddressType | None = None
