@@ -4,7 +4,7 @@ from redis import RedisError
 
 from src.util.enums import ServiceEntities
 from src.repository.cache_repository import CacheRepository
-from src.dto.request_dtos import PartyCreate
+from src.dto.request_dtos import PartyCreate, PartyUpdate
 from src.util import mappers
 from src.models.address import Address
 from src.models.party import Party
@@ -56,6 +56,15 @@ class PartyService:
 
         self._write_to_cache(party.id, party_response)
         logger.info(f"Party with ID {party.id} successfully created.")
+        return party_response
+
+    def update_party(self, party_id: int, party_request: PartyUpdate) -> dict[str, Any]:
+        party = self._get_party_by_id(party_id)
+        # TODO: do stuff here
+
+        party_response = {"placeholder": "response"}
+        self._write_to_cache(party.id, party_response)
+        logger.info(f"Party with ID {party.id} successfully updated.")
         return party_response
 
     def _create_party(self, party: Party) -> Party:
