@@ -1,6 +1,8 @@
 from dataclasses import asdict, dataclass
 from typing import Any, Self
 
+from src.util.enums import ServiceEntities
+
 
 @dataclass(frozen=True)
 class ErrorDTO:
@@ -21,3 +23,10 @@ class ErrorDTO:
         err_dict = asdict(self)
         err_dict.update(extensions)
         return err_dict
+
+
+class EntityNotFound(Exception):
+    def __init__(self, entity_name: ServiceEntities, entity_id: int) -> None:
+        self.entity_name = entity_name.value.capitalize()
+        self.entity_id = entity_id
+        super().__init__(f"{self.entity_name} with ID {entity_id} was not found.")
