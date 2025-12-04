@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import Annotated, Protocol
+from typing import Annotated, TYPE_CHECKING
 from pydantic import BaseModel, ConfigDict, EmailStr
 from pydantic.alias_generators import to_camel
 from pydantic import Field, AfterValidator
+
 from src.util.enums import USState
 import hashlib
 
@@ -69,17 +70,16 @@ class MetaUpdate(CustomBaseModel):
     updated_at: datetime
 
 
-class AddressProtocol(Protocol):
-    street_one: str
-    street_two: str | None
-    city: str
-    state: str
-    postal_code: str
-    country: str
-
-
 class AddressHashMixin:
-    def get_hash(self: AddressProtocol) -> str:
+    if TYPE_CHECKING:
+        street_one: str | None
+        street_two: str | None
+        city: str | None
+        state: str | None
+        postal_code: str | None
+        country: str | None
+
+    def get_hash(self) -> str:
         """Normalize address components, then get a deterministic hash."""
         normalized_string = (
             f"{self.street_one}"
@@ -99,7 +99,6 @@ class AddressCreate(CustomBaseModel, AddressHashMixin):
     state: StateType
     postal_code: PostalType
     country: CountryType
-    meta: MetaCreate
 
 
 class AddressUpdate(CustomBaseModel, AddressHashMixin):
@@ -109,7 +108,6 @@ class AddressUpdate(CustomBaseModel, AddressHashMixin):
     state: StateType | None = None
     postal_code: PostalType | None = None
     country: CountryType | None = None
-    meta: MetaUpdate
 
 
 class PartyCreate(CustomBaseModel):
@@ -123,6 +121,13 @@ class PartyCreate(CustomBaseModel):
 
 
 class PartyUpdate(CustomBaseModel):
+    """
+    Meta UpdatedBy is used in the following situations during a PATCH request:
+    1. Party row in TBL_PARTY when Party attribute is updated
+    2. Party row in TBL_PARTY when Party address is updated
+    3. Address row in TBL_ADDRESS when a new Address is created.
+    """
+
     first_name: GeneralStringType | None = None
     middle_name: GeneralStringType | None = None
     last_name: GeneralStringType | None = None

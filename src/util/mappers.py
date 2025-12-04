@@ -1,3 +1,4 @@
+from src.dto.request_dtos import AddressUpdate
 from src.dto.request_dtos import PartyCreate, AddressCreate
 from src.models.address import Address
 from src.models.party import Party
@@ -18,7 +19,7 @@ def to_party(party_request: PartyCreate) -> Party:
     )
 
 
-def to_address(address_request: AddressCreate) -> Address:
+def to_address(address_request: AddressCreate | AddressUpdate) -> Address:
     return Address(
         street_one=address_request.street_one,
         street_two=address_request.street_two,
@@ -27,12 +28,10 @@ def to_address(address_request: AddressCreate) -> Address:
         postal_code=address_request.postal_code,
         country=address_request.country,
         hash=address_request.get_hash(),
-        created_by=address_request.meta.created_by,
-        updated_by=address_request.meta.created_by,
     )
 
 
-def to_party_history(party: Party, address: Address) -> PartyHistory:
+def to_party_history(party: Party) -> PartyHistory:
     return PartyHistory(
         party_id=party.id,
         first_name=party.first_name,
@@ -44,14 +43,18 @@ def to_party_history(party: Party, address: Address) -> PartyHistory:
         party_updated_at=party.updated_at,
         party_created_by=party.created_by,
         party_updated_by=party.updated_by,
-        street_one=address.street_one,
-        street_two=address.street_two,
-        city=address.city,
-        state=address.state,
-        zip_code=address.postal_code,
-        country=address.country,
-        created_by=party.created_by,
-        updated_by=party.created_by,
+        street_one=party.address.street_one,
+        street_two=party.address.street_two,
+        city=party.address.city,
+        state=party.address.state,
+        zip_code=party.address.postal_code,
+        country=party.address.country,
+        created_by=party.updated_by,
+        # ^ this reason this is updated_by,
+        # is because subsequent party history records are created from updates,
+        # and updates are initiated by the user in the updated_by field,
+        # hence they are the creator of these new history row
+        updated_by=party.updated_by,
     )
 
 
