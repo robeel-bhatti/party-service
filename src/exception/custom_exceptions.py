@@ -26,6 +26,11 @@ class ErrorDTO:
 
 
 class EntityNotFound(Exception):
+    """
+    Custom exception raised when an entity was not found. I created a custom exception for this because if there
+    are different types of entities not found, we want to pass in the appropriate entity name.
+    """
+
     def __init__(self, entity_name: ServiceEntities, entity_id: int) -> None:
         self.entity_name = entity_name.value.capitalize()
         self.entity_id = entity_id

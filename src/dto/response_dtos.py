@@ -4,6 +4,15 @@ from typing import Self, Any
 
 
 def make_json_serializable(data: list[tuple[str, Any]]) -> dict[str, Any]:
+    """
+    The custom dictionary factory function that returns a JSON-serializable object in order to be cached
+    and set over the wire.
+    This function takes in a list of tuples, which each tuple containing the dataclass field, and the respective value.
+
+    Any fields whose value is an instance of the datetime class is converted to a string representing UTC time.
+    All fields are converted to camel case.
+    """
+
     def convert_value(value: Any) -> Any:
         if isinstance(value, datetime):
             return value.isoformat()
@@ -49,4 +58,5 @@ class PartyResponse:
     middle_name: str | None = None
 
     def to_dict(self: Self) -> dict[str, Any]:
+        """Convert an instance of this dataclass to a JSON-serializable dictionary"""
         return asdict(self, dict_factory=make_json_serializable)

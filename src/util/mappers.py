@@ -8,6 +8,9 @@ from src.models.base import Base
 
 
 def to_party(party_request: PartyCreate) -> Party:
+    """
+    Take the object representing the POST payload, and map the attributes to the newly created Party entity.
+    """
     return Party(
         first_name=party_request.first_name,
         last_name=party_request.last_name,
@@ -20,6 +23,12 @@ def to_party(party_request: PartyCreate) -> Party:
 
 
 def to_address(address_request: AddressCreate | AddressUpdate) -> Address:
+    """
+    Take the object representing the POST or PATCH payload, and map the address attributes
+    to the newly created Address entity.
+
+    New addresses can be created during a POST or PATCH.
+    """
     return Address(
         street_one=address_request.street_one,
         street_two=address_request.street_two,
@@ -32,6 +41,7 @@ def to_address(address_request: AddressCreate | AddressUpdate) -> Address:
 
 
 def to_party_history(party: Party) -> PartyHistory:
+    """Using the newly created or recently updated Party entity, create a new Party History record for it."""
     return PartyHistory(
         party_id=party.id,
         first_name=party.first_name,
@@ -69,6 +79,7 @@ def to_meta_response(model: Base) -> MetaResponse:
 
 
 def to_address_response(address: Address) -> AddressResponse:
+    """Create the address object of the API response."""
     return AddressResponse(
         id=address.id,
         street_one=address.street_one,
@@ -82,6 +93,7 @@ def to_address_response(address: Address) -> AddressResponse:
 
 
 def to_party_response(party: Party) -> PartyResponse:
+    """Create the API response."""
     return PartyResponse(
         id=party.id,
         first_name=party.first_name,

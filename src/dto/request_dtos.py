@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Annotated, TYPE_CHECKING
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 from pydantic.alias_generators import to_camel
 from pydantic import Field, AfterValidator
 
@@ -71,6 +71,9 @@ class MetaUpdate(CustomBaseModel):
 
 
 class AddressHashMixin:
+    """Custom mixin that provides a method that calculates the address hash."""
+
+    # to appease mypy
     if TYPE_CHECKING:
         street_one: str | None
         street_two: str | None
@@ -109,8 +112,30 @@ class AddressUpdate(CustomBaseModel, AddressHashMixin):
     postal_code: PostalType | None = None
     country: CountryType | None = None
 
+    @field_validator(
+        "street_one", "city", "state", "postal_code", "country", mode="before"
+    )
+    @classmethod
+    def check_not_null_when_provided(cls, v: str) -> str:
+        if v is None:
+            raise ValueError(f"{v} cannot be null when provided")
+        return v
+
 
 class PartyCreate(CustomBaseModel):
+    """
+    During a POST request, validates and deserializes the JSON payload into an instance of this class.
+    Optional fields default to None
+    Nullable fields are type hinted to "or None".
+
+    Same applies to the AddressCreate model.
+
+    Meta UpdatedBy is used in the following situations during a PATCH request:
+    1. Party row in TBL_PARTY when Party attribute is updated
+    2. Party row in TBL_PARTY when Party address is updated
+    3. Address row in TBL_ADDRESS when a new Address is created.
+    """
+
     first_name: GeneralStringType
     middle_name: GeneralStringType | None = None
     last_name: GeneralStringType
@@ -122,6 +147,12 @@ class PartyCreate(CustomBaseModel):
 
 class PartyUpdate(CustomBaseModel):
     """
+    During a PATCH request, validates and deserializes the JSON payload into an instance of this class.
+    All fields default to None, meaning they are not required to be present in the payload.
+    If fields are present in the payload, then they aren't nullable (except middle_name).
+
+    Same applies to the AddressUpdate model.
+
     Meta UpdatedBy is used in the following situations during a PATCH request:
     1. Party row in TBL_PARTY when Party attribute is updated
     2. Party row in TBL_PARTY when Party address is updated

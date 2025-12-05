@@ -12,11 +12,16 @@ from src.service.party_service import PartyService
 
 
 class Container:
-    """Dependency injection container.
+    """
+    Dependency injection container.
 
     This container creates and stores dependencies as instance attributes.
     It injects dependencies where appropriate.
     This class should only be instantiated once, when configuring it to be an attribute of the flask app object.
+
+    Each property attribute of this class validates that an instance of the class it is supposed to return
+    is not created. If it is, return it as is. App dependencies are singletons now. This limits outgoing
+    DB and Cache connections to one dependency for each connection type respectively.
     """
 
     def __init__(self, db_session: Session, cache: Redis) -> None:
