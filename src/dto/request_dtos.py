@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import Annotated, TYPE_CHECKING
+from typing import Annotated, TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 from pydantic.alias_generators import to_camel
 from pydantic import Field, AfterValidator
+from pydantic_core.core_schema import ValidationInfo
 
 from src.util.enums import USState
 import hashlib
@@ -116,9 +117,10 @@ class AddressUpdate(CustomBaseModel, AddressHashMixin):
         "street_one", "city", "state", "postal_code", "country", mode="before"
     )
     @classmethod
-    def check_not_null_when_provided(cls, v: str) -> str:
+    def check_not_null_when_provided(cls, v: str, info: ValidationInfo[Any]) -> str:
+        print(info.field_name)
         if v is None:
-            raise ValueError(f"{v} cannot be null when provided")
+            raise ValueError(f"{info.field_name} cannot be null when provided")
         return v
 
 

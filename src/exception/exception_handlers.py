@@ -16,10 +16,18 @@ def handle_validation_error(e: ValidationError) -> tuple[Response, int]:
     logger.error(
         f"The request failed due to the following validation error(s): {e.json(indent=4)}"
     )
-    validation_errors = [
-        {"field": ".".join(str(loc) for loc in error["loc"]), "message": error["msg"]}
-        for error in e.errors()
-    ]
+
+    validation_errors = []
+    for error in e.errors():
+        field = ".".join(str(loc) for loc in error["loc"])
+
+        # Try to get custom error message from ctx, otherwise use default msg
+        if "ctx" in error and "error" in error["ctx"]:
+            message = str(error["ctx"]["error"])
+        else:
+            message = error["msg"]
+
+        validation_errors.append({"field": field, "message": message})
 
     error_dto = ErrorDTO(
         status=HTTPStatus.UNPROCESSABLE_ENTITY.value,
