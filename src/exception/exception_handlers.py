@@ -5,7 +5,7 @@ from flask import Response, jsonify, request
 from sqlalchemy.exc import SQLAlchemyError
 from pydantic import ValidationError
 
-from src.exception.error_dto import ErrorDTO
+from src.exception.custom_exceptions import ErrorDTO, EntityNotFound
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +16,18 @@ def handle_validation_error(e: ValidationError) -> tuple[Response, int]:
     logger.error(
         f"The request failed due to the following validation error(s): {e.json(indent=4)}"
     )
-    validation_errors = [
-        {"field": ".".join(str(loc) for loc in error["loc"]), "message": error["msg"]}
-        for error in e.errors()
-    ]
+
+    validation_errors = []
+    for error in e.errors():
+        field = ".".join(str(loc) for loc in error["loc"])
+
+        # Try to get custom error message from ctx, otherwise use default msg
+        if "ctx" in error and "error" in error["ctx"]:
+            message = str(error["ctx"]["error"])
+        else:
+            message = error["msg"]
+
+        validation_errors.append({"field": field, "message": message})
 
     error_dto = ErrorDTO(
         status=HTTPStatus.UNPROCESSABLE_ENTITY.value,
@@ -43,3 +51,16 @@ def handle_database_error(e: SQLAlchemyError) -> tuple[Response, int]:
     ).to_dict()
 
     return jsonify(error_dto), 500
+
+
+def handle_not_found_error(e: EntityNotFound) -> tuple[Response, int]:
+    """Handles errors when the entity was not found and one was expected to be there."""
+    logger.exception(str(e))
+    error_dto = ErrorDTO(
+        status=HTTPStatus.NOT_FOUND.value,
+        title=HTTPStatus.NOT_FOUND.phrase,
+        detail=str(e),
+        instance=request.path,
+    ).to_dict()
+
+    return jsonify(error_dto), 404

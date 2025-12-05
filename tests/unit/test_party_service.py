@@ -7,7 +7,7 @@ def test_add_party_with_new_address(
     party_service,
     mock_uow,
     mock_cache_repository,
-    party_request,
+    party_create_dto,
     party_response,
     address_fixture,
     party_fixture,
@@ -20,7 +20,7 @@ def test_add_party_with_new_address(
     mock_mappers.to_party_history.return_value = party_history_fixture
     mock_mappers.to_party_response.return_value = party_response
 
-    result = party_service.add_party(party_request)
+    result = party_service.add_party(party_create_dto)
 
     assert result == party_response.to_dict()
     assert party_fixture.address_id == address_fixture.id
@@ -41,7 +41,7 @@ def test_add_party_with_existing_address(
     party_service,
     mock_uow,
     mock_cache_repository,
-    party_request,
+    party_create_dto,
     party_response,
     address_fixture,
     party_fixture,
@@ -53,7 +53,7 @@ def test_add_party_with_existing_address(
     mock_mappers.to_party_history.return_value = party_history_fixture
     mock_mappers.to_party_response.return_value = party_response
 
-    result = party_service.add_party(party_request)
+    result = party_service.add_party(party_create_dto)
     assert result == party_response.to_dict()
     assert party_fixture.address_id == address_fixture.id
     assert mock_uow.flush.call_count == 2
@@ -68,7 +68,7 @@ def test_add_party_cache_failure(
     party_service,
     mock_uow,
     mock_cache_repository,
-    party_request,
+    party_create_dto,
     party_response,
     address_fixture,
     party_fixture,
@@ -82,7 +82,7 @@ def test_add_party_cache_failure(
     mock_mappers.to_party_response.return_value = party_response
     mock_cache_repository.add.side_effect = RedisError("Cache connection failed")
 
-    result = party_service.add_party(party_request)
+    result = party_service.add_party(party_create_dto)
 
     assert result == party_response.to_dict()
     mock_uow.party_repository.add.assert_called_once()
@@ -97,7 +97,7 @@ def test_add_party_transaction_rollback_on_error(
     mocker,
     party_service,
     mock_uow,
-    party_request,
+    party_create_dto,
     address_fixture,
     party_fixture,
     mock_mappers,
@@ -108,7 +108,7 @@ def test_add_party_transaction_rollback_on_error(
     mock_uow.party_repository.add.side_effect = Exception("Database error")
 
     with pytest.raises(Exception, match="Database error"):
-        party_service.add_party(party_request)
+        party_service.add_party(party_create_dto)
 
     mock_uow.__enter__.assert_called_once()
     mock_uow.__exit__.assert_called_once()

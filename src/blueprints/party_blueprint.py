@@ -1,10 +1,10 @@
 import logging
 
-from flask import current_app, Blueprint
+from flask import current_app, Blueprint, request
 from flask.views import MethodView
 
 from src.util.enums import ServiceEntities
-from src.dto.request_dtos import PartyRequest
+from src.dto.request_dtos import PartyCreate, PartyUpdate
 from src.middleware.validation import validate_request
 from src.middleware.caching import cache_read
 from src.util.custom_types import PartyResponseTuple
@@ -18,8 +18,8 @@ class PartyBaseView(MethodView):
 
 
 class PartyListView(PartyBaseView):
-    @validate_request(PartyRequest)
-    def post(self, party_request: PartyRequest) -> PartyResponseTuple:
+    @validate_request(PartyCreate)
+    def post(self, party_request: PartyCreate) -> PartyResponseTuple:
         """Handles REST requests to create a new party."""
         logger.info("POST /parties endpoint received request to create Party.")
         return self._party_service.add_party(party_request), 201
@@ -33,6 +33,13 @@ class PartyDetailView(PartyBaseView):
             f"GET /parties endpoint received request to retrieve Party with ID {id}."
         )
         return self._party_service.get_party(id), 200
+
+    def patch(self, id: int) -> PartyResponseTuple:
+        """Handles REST requests to update an existing party by ID."""
+        logger.info(
+            f"PATCH /parties endpoint received request to update Party with ID {id}."
+        )
+        return self._party_service.update_party(id, PartyUpdate(**request.json)), 200
 
 
 party_blp = Blueprint("party_blueprint", __name__, url_prefix="/api")

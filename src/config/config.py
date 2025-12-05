@@ -7,12 +7,18 @@ from flask import Flask
 from pydantic import ValidationError
 from redis import Redis
 from sqlalchemy import QueuePool, create_engine
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from src.blueprints.health_check_blueprint import hc_blp
 from src.blueprints.party_blueprint import party_blp
+from src.exception.custom_exceptions import EntityNotFound
 from src.config.container import Container
-from src.exception.exception_handlers import handle_validation_error
+from src.exception.exception_handlers import (
+    handle_validation_error,
+    handle_database_error,
+    handle_not_found_error,
+)
 
 
 class Config:
@@ -86,6 +92,8 @@ def init_cache(app: Flask) -> None:
 
 def init_exception_handlers(app: Flask) -> None:
     app.register_error_handler(ValidationError, handle_validation_error)
+    app.register_error_handler(EntityNotFound, handle_not_found_error)
+    app.register_error_handler(SQLAlchemyError, handle_database_error)
 
 
 def register_teardown_logic(app: Flask) -> None:

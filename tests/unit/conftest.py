@@ -4,7 +4,7 @@ from src.dto.response_dtos import PartyResponse, AddressResponse, MetaResponse
 import pytest
 from src.service.party_service import PartyService
 from src.models import Party, Address, PartyHistory
-from src.dto.request_dtos import PartyRequest
+from src.dto.request_dtos import PartyCreate, PartyUpdate
 
 
 @dataclass
@@ -50,14 +50,36 @@ def default_meta_data() -> TestMeta:
     return TestMeta()
 
 
+# ----- POST request fixtures -----
 @pytest.fixture
 def post_payload(default_party_data) -> dict:
     return asdict(default_party_data)
 
 
 @pytest.fixture
-def party_request(post_payload):
-    return PartyRequest(**post_payload)
+def party_create_dto(post_payload) -> PartyCreate:
+    return PartyCreate(**post_payload)
+
+
+# ----- PATCH request fixtures ------
+@pytest.fixture
+def patch_payload() -> dict:
+    return {
+        "firstName": "Jane",
+        "email": "jane.new@example.com",
+        "middleName": None,
+        "address": {
+            "city": "New Town",
+            "state": "CA",
+            "meta": {"updatedBy": "patch.user", "updatedAt": "2025-01-02T10:00:00"},
+        },
+        "meta": {"updatedBy": "patch.user", "updatedAt": "2025-01-02T10:00:00"},
+    }
+
+
+@pytest.fixture
+def party_update_dto(patch_payload) -> PartyUpdate:
+    return PartyUpdate(**patch_payload)
 
 
 @pytest.fixture
@@ -99,18 +121,6 @@ def party_response(default_party_data, address_response, meta_response):
 
 
 @pytest.fixture
-def party_fixture(default_party_data):
-    party = Party()
-    party.id = 1
-    party.first_name = default_party_data.firstName
-    party.middle_name = default_party_data.middleName
-    party.last_name = default_party_data.lastName
-    party.email = default_party_data.email
-    party.phone_number = default_party_data.phoneNumber
-    return party
-
-
-@pytest.fixture
 def address_fixture(default_party_data):
     address = Address()
     address.id = 1
@@ -121,6 +131,20 @@ def address_fixture(default_party_data):
     address.postal_code = default_party_data.address.postalCode
     address.country = default_party_data.address.country
     return address
+
+
+@pytest.fixture
+def party_fixture(default_party_data, address_fixture):
+    party = Party()
+    party.id = 1
+    party.first_name = default_party_data.firstName
+    party.middle_name = default_party_data.middleName
+    party.last_name = default_party_data.lastName
+    party.email = default_party_data.email
+    party.phone_number = default_party_data.phoneNumber
+    party.address_id = address_fixture.id
+    party.address = address_fixture
+    return party
 
 
 @pytest.fixture
