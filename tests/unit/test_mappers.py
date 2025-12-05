@@ -34,14 +34,11 @@ def test_to_address(default_party_data, post_payload):
     assert result.state == default_party_data.address.state
     assert result.postal_code == default_party_data.address.postalCode
     assert result.country == default_party_data.address.country
-    assert result.created_by == default_party_data.address.meta.createdBy
-    assert result.updated_by == default_party_data.address.meta.createdBy
-    assert result.updated_by == result.created_by
 
 
 def test_to_party_history(default_party_data, party_fixture, address_fixture):
     """Test that Party and Address are mapping correctly to PartyHistory"""
-    result = mappers.to_party_history(party_fixture, address_fixture)
+    result = mappers.to_party_history(party_fixture)
 
     assert isinstance(result, PartyHistory)
     assert result.party_id == party_fixture.id

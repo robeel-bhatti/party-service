@@ -121,18 +121,6 @@ def party_response(default_party_data, address_response, meta_response):
 
 
 @pytest.fixture
-def party_fixture(default_party_data):
-    party = Party()
-    party.id = 1
-    party.first_name = default_party_data.firstName
-    party.middle_name = default_party_data.middleName
-    party.last_name = default_party_data.lastName
-    party.email = default_party_data.email
-    party.phone_number = default_party_data.phoneNumber
-    return party
-
-
-@pytest.fixture
 def address_fixture(default_party_data):
     address = Address()
     address.id = 1
@@ -143,6 +131,20 @@ def address_fixture(default_party_data):
     address.postal_code = default_party_data.address.postalCode
     address.country = default_party_data.address.country
     return address
+
+
+@pytest.fixture
+def party_fixture(default_party_data, address_fixture):
+    party = Party()
+    party.id = 1
+    party.first_name = default_party_data.firstName
+    party.middle_name = default_party_data.middleName
+    party.last_name = default_party_data.lastName
+    party.email = default_party_data.email
+    party.phone_number = default_party_data.phoneNumber
+    party.address_id = address_fixture.id
+    party.address = address_fixture
+    return party
 
 
 @pytest.fixture

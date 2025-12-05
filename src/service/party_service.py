@@ -14,6 +14,8 @@ from src.repository.unit_of_work import UnitOfWork
 
 logger = logging.getLogger(__name__)
 
+# TODO: fix unit tests!!
+
 
 class PartyService:
     """Orchestrate all business logic for the Party entity.
@@ -92,6 +94,9 @@ class PartyService:
                 all_fields = {field for field in address_request.model_fields.keys()}
                 unset_fields = all_fields.difference(set(updated_address_fields.keys()))
 
+                # Set address fields not in the PATCH payload on the pydantic model
+                # We now have the new address components on the pydantic model
+                # to start address validation flow
                 for f in unset_fields:
                     setattr(address_request, f, getattr(party.address, f))
 
