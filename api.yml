@@ -122,36 +122,37 @@ components:
           type: string
           minLength: 1
           maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "John"
-          description: "First name (letters, spaces, hyphens, periods, and apostrophes only)"
+          description: "First name (letters, numbers, spaces, hyphens, periods, and apostrophes only)"
         middleName:
           type: string
           minLength: 1
           maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "A."
-          description: "Middle name or initial (letters, spaces, hyphens, periods, and apostrophes only)"
+          description: "Middle name or initial (letters, numbers, spaces, hyphens, periods, and apostrophes only)"
         lastName:
           type: string
           minLength: 1
           maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "Doe"
-          description: "Last name (letters, spaces, hyphens, periods, and apostrophes only)"
+          description: "Last name (letters, numbers, spaces, hyphens, periods, and apostrophes only)"
         email:
           type: string
           format: email
           minLength: 3
           maxLength: 254
-          pattern: '^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$'
           example: "john.doe@example.com"
           description: "Valid email address"
         phoneNumber:
           type: string
-          pattern: '^\d{3}-\d{3}-\d{4}$'
-          example: "555-123-4567"
-          description: "US phone number in format xxx-xxx-xxxx"
+          minLength: 10
+          maxLength: 10
+          pattern: '^[1-9]\d{9}$'
+          example: "5551234567"
+          description: "US phone number (10 digits, first digit 1-9)"
         address:
           $ref: '#/components/schemas/AddressCreate'
         meta:
@@ -165,7 +166,6 @@ components:
         - meta
       description: >
         All fields are required except for middleName.
-        At least one of `email` or `phoneNumber` must be provided.
 
     AddressCreate:
       type: object
@@ -173,52 +173,51 @@ components:
         streetOne:
           type: string
           minLength: 1
-          maxLength: 200
+          maxLength: 100
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "123 Main St"
           description: "Primary street address"
         streetTwo:
           type: string
           minLength: 1
-          maxLength: 200
+          maxLength: 100
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "Apt 4B"
           description: "Secondary address line (apartment, suite, etc.)"
         city:
           type: string
           minLength: 1
           maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "Springfield"
-          description: "City name (letters, spaces, hyphens, periods, and apostrophes only)"
+          description: "City name"
         state:
           type: string
           minLength: 2
           maxLength: 2
           pattern: '^[A-Za-z]{2}$'
           example: "IL"
-          description: "US state code (two letters, case insensitive)"
-        zip:
+          description: "US state code (two letters, will be converted to uppercase)"
+        postalCode:
+          type: string
+          minLength: 1
+          maxLength: 10
+          pattern: '^\d{5}(-\d{4})?$'
+          example: "62704"
+          description: "US ZIP code (5 digits or 5+4 format)"
+        country:
           type: string
           minLength: 3
-          maxLength: 10
-          pattern: '^[a-zA-Z0-9\s\-]+$'
-          example: "62704"
-          description: "Postal/ZIP code (alphanumeric, spaces, and hyphens allowed)"
-        countryCode:
-          type: string
-          minLength: 2
-          maxLength: 2
-          pattern: '^[A-Z]{2}$'
-          example: "US"
-          description: "ISO 3166-1 alpha-2 country code (uppercase)"
-        meta:
-          $ref: '#/components/schemas/MetaCreate'
+          maxLength: 3
+          pattern: '^[A-Z]{3}$'
+          example: "USA"
+          description: "ISO 3166-1 alpha-3 country code (uppercase, 3 letters)"
       required:
         - streetOne
         - city
         - state
-        - zip
-        - countryCode
-        - meta
+        - postalCode
+        - country
 
     MetaCreate:
       type: object
@@ -226,6 +225,8 @@ components:
         createdBy:
           type: string
           minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "user@example.com"
           description: "Identifier of the user creating the resource"
         createdAt:
@@ -245,37 +246,40 @@ components:
           type: string
           minLength: 1
           maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
-          description: "First name (letters, spaces, hyphens, periods, and apostrophes only)"
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
+          description: "First name (letters, numbers, spaces, hyphens, periods, and apostrophes only). Cannot be null when provided."
         middleName:
           type: string
           minLength: 1
           maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
-          description: "Middle name or initial (letters, spaces, hyphens, periods, and apostrophes only)"
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
+          description: "Middle name or initial (letters, numbers, spaces, hyphens, periods, and apostrophes only)"
         lastName:
           type: string
           minLength: 1
           maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
-          description: "Last name (letters, spaces, hyphens, periods, and apostrophes only)"
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
+          description: "Last name (letters, numbers, spaces, hyphens, periods, and apostrophes only). Cannot be null when provided."
         email:
           type: string
           format: email
           minLength: 3
           maxLength: 254
-          pattern: '^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$'
-          description: "Valid email address"
+          description: "Valid email address. Cannot be null when provided."
         phoneNumber:
           type: string
-          pattern: '^\d{3}-\d{3}-\d{4}$'
-          example: "555-123-4567"
-          description: "US phone number in format xxx-xxx-xxxx"
+          minLength: 10
+          maxLength: 10
+          pattern: '^[1-9]\d{9}$'
+          example: "5551234567"
+          description: "US phone number (10 digits, first digit 1-9). Cannot be null when provided."
         address:
           $ref: '#/components/schemas/AddressUpdate'
         meta:
           $ref: '#/components/schemas/MetaUpdate'
-      description: "All fields are optional for updates. Only provided fields will be updated."
+      required:
+        - meta
+      description: "All fields are optional for updates except meta. Only provided fields will be updated. Fields cannot be null when provided (except middleName)."
 
     AddressUpdate:
       type: object
@@ -283,46 +287,46 @@ components:
         streetOne:
           type: string
           minLength: 1
-          maxLength: 200
+          maxLength: 100
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "123 Main St"
-          description: "Primary street address"
+          description: "Primary street address. Cannot be null when provided."
         streetTwo:
           type: string
           minLength: 1
-          maxLength: 200
+          maxLength: 100
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "Apt 4B"
           description: "Secondary address line (apartment, suite, etc.)"
         city:
           type: string
           minLength: 1
           maxLength: 100
-          pattern: '^[a-zA-Z\s\-\.'']+$'
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "Springfield"
-          description: "City name (letters, spaces, hyphens, periods, and apostrophes only)"
+          description: "City name. Cannot be null when provided."
         state:
           type: string
           minLength: 2
           maxLength: 2
           pattern: '^[A-Za-z]{2}$'
           example: "IL"
-          description: "US state code (two letters, case insensitive)"
-        zip:
+          description: "US state code (two letters, will be converted to uppercase). Cannot be null when provided."
+        postalCode:
+          type: string
+          minLength: 1
+          maxLength: 10
+          pattern: '^\d{5}(-\d{4})?$'
+          example: "62704"
+          description: "US ZIP code (5 digits or 5+4 format). Cannot be null when provided."
+        country:
           type: string
           minLength: 3
-          maxLength: 10
-          pattern: '^[a-zA-Z0-9\s\-]+$'
-          example: "62704"
-          description: "Postal/ZIP code (alphanumeric, spaces, and hyphens allowed)"
-        countryCode:
-          type: string
-          minLength: 2
-          maxLength: 2
-          pattern: '^[A-Z]{2}$'
-          example: "US"
-          description: "ISO 3166-1 alpha-2 country code (uppercase)"
-        meta:
-          $ref: '#/components/schemas/MetaUpdate'
-      description: "All fields are optional. Only provided fields will be updated."
+          maxLength: 3
+          pattern: '^[A-Z]{3}$'
+          example: "USA"
+          description: "ISO 3166-1 alpha-3 country code (uppercase, 3 letters). Cannot be null when provided."
+      description: "All fields are optional. Only provided fields will be updated. Fields cannot be null when provided (except streetTwo)."
 
     MetaUpdate:
       type: object
@@ -330,6 +334,8 @@ components:
         updatedBy:
           type: string
           minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-Z0-9\s\-\.'']+$'
           example: "user@example.com"
           description: "Identifier of the user updating the resource"
         updatedAt:
@@ -363,7 +369,7 @@ components:
           example: "john.doe@example.com"
         phoneNumber:
           type: string
-          example: "555-123-4567"
+          example: "5551234567"
         address:
           $ref: '#/components/schemas/AddressResponse'
         meta:
@@ -395,22 +401,19 @@ components:
         state:
           type: string
           example: "IL"
-        zip:
+        postalCode:
           type: string
           example: "62704"
-        countryCode:
+        country:
           type: string
-          example: "US"
-        meta:
-          $ref: '#/components/schemas/MetaResponse'
+          example: "USA"
       required:
         - id
         - streetOne
         - city
         - state
-        - zip
-        - countryCode
-        - meta
+        - postalCode
+        - country
 
     MetaResponse:
       type: object
