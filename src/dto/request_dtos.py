@@ -130,11 +130,6 @@ class PartyCreate(CustomBaseModel):
     Nullable fields are type hinted to "or None".
 
     Same applies to the AddressCreate model.
-
-    Meta UpdatedBy is used in the following situations during a PATCH request:
-    1. Party row in TBL_PARTY when Party attribute is updated
-    2. Party row in TBL_PARTY when Party address is updated
-    3. Address row in TBL_ADDRESS when a new Address is created.
     """
 
     first_name: GeneralStringType
@@ -150,7 +145,7 @@ class PartyUpdate(CustomBaseModel):
     """
     During a PATCH request, validates and deserializes the JSON payload into an instance of this class.
     All fields default to None, meaning they are not required to be present in the payload.
-    If fields are present in the payload, then they aren't nullable (except middle_name).
+    If fields are present in the payload, then they aren't nullable (except middle_name). This is enforced by the field validator method.
 
     Same applies to the AddressUpdate model.
 
@@ -167,3 +162,12 @@ class PartyUpdate(CustomBaseModel):
     phone_number: PhoneType | None = None
     address: AddressUpdate | None = None
     meta: MetaUpdate
+
+    @field_validator(
+        "first_name", "last_name", "email", "phone_number", "address", mode="before"
+    )
+    @classmethod
+    def check_not_null_when_provided(cls, v: str, info: ValidationInfo[Any]) -> str:
+        if v is None:
+            raise ValueError(f"{info.field_name} cannot be null when provided")
+        return v
