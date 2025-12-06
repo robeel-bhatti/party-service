@@ -23,7 +23,15 @@ def handle_validation_error(e: ValidationError) -> tuple[Response, int]:
 
         # Try to get custom error message from ctx, otherwise use default msg
         if "ctx" in error and "error" in error["ctx"]:
-            message = str(error["ctx"]["error"])
+            # in the error[ctx][error] value, the field name is snake case
+            # ex. "first_name cannot be null when provided"
+            # I use camel case for this API, so it may be confusing to consumers having a snake case field
+            # in the error response message, so remove that snake cased field, and we already define the field
+            # in the field key using the field variables anyways (see .append() call).
+            delimiter = " "
+            str_list = str(error["ctx"]["error"]).split(delimiter)
+            del str_list[0]
+            message = delimiter.join(str_list).capitalize()
         else:
             message = error["msg"]
 

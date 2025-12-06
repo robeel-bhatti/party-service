@@ -1,6 +1,7 @@
 from datetime import datetime
 from dataclasses import dataclass, asdict
 from typing import Self, Any
+from src.util import helpers
 
 
 def make_json_serializable(data: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -18,12 +19,7 @@ def make_json_serializable(data: list[tuple[str, Any]]) -> dict[str, Any]:
             return value.isoformat()
         return value
 
-    def to_camel_case(snake_str: str) -> str:
-        """Convert snake_case string to camelCase."""
-        components = snake_str.split("_")
-        return components[0] + "".join(word.capitalize() for word in components[1:])
-
-    return {to_camel_case(k): convert_value(v) for k, v in data}
+    return {helpers.to_camel_case(k): convert_value(v) for k, v in data}
 
 
 @dataclass
